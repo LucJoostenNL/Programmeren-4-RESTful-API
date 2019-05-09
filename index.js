@@ -2,11 +2,11 @@ const express = require('express');
 const logger = require('./SRC/CONFIG/app.config').logger
 const bodyparser = require('body-parser');
 
-const app = express();
-const port = process.env.PORT || 2019;
+const appartmentRentalRoutes = require("./SRC/ROUTES/APPARTMENTS/appartments.routs");
+const reservationRoutes= require("./src/ROUTES/RESERVATIONS/reservations.routes");
 
-app.use(express.json());
-app.use(bodyparser.json());
+const app = express()
+const port = process.env.PORT || 2019
 
 // Generic endpoint handler - voor alle routes
 app.all('*', (req, res, next) => {
@@ -17,15 +17,7 @@ app.all('*', (req, res, next) => {
     next()
   })
   
-  // Hier installeren we de routes
-  app.use('/api/appartments');
-  app.use('/api/appartments/:id');
-  app.use('/api/appartments/:id/reservations');
-  app.use('/api/appartments:id/reservations/:id');
-
-  
-  
-  // Handle endpoint not found.
+ // Handle endpoint not found.
   app.all('*', (req, res, next) => {
     logger.error('Endpoint not found.')
     const errorObject = {
@@ -43,5 +35,14 @@ app.all('*', (req, res, next) => {
   })
   
   app.listen(port, () => logger.info(`Apartment rental app listening on port ${port}!`))
+
+  app.use(bodyparser.json())
+
+// Hier installeren we de routes
+   app.use('/api/appartments', appartmentRentalRoutes)
+   app.use('/api/appartments/:id', appartmentRentalRoutes)
+   app.use('/api/appartments/:id/reservations', reservationRoutes)
+   app.use('/api/appartments/:id/reservations/:id', reservationRoutes)
+
 
   module.exports = app
