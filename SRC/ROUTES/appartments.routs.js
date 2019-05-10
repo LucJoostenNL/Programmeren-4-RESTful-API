@@ -4,11 +4,11 @@ const ApartmentController = require('../CONTROLLERS/appartments.controller')
 
 // appartements
 router.get('/', ApartmentController.getAppartments);
-router.post('/', ApartmentController.test);
+router.post('/', ApartmentController.createAppartment);
 
 // appartments with id
-router.get('/:id');
-router.put('/:id');
-router.delete('/:id');
+router.get('/:id', ApartmentController.getApartmentByID);
+router.put('/:id', ApartmentController.updateApartmentByID);
+router.delete('/:id', ApartmentController.deleteApartmentByID);
 
 module.exports = router

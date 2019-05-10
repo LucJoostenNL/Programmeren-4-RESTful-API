@@ -23,27 +23,26 @@ module.exports = {
                     result: rows.recordset
                 })
             }
-        })
+        });
     },
 
-    createAppartment: function (req, res, next) {
+    createAppartment: (req, res, next) => {
         logger.info('POST /api/appartments aangeroepen!')
 
         logger.trace("Creating a new apartment into the database")
+        logger.trace(req.body);
 
-        logger.trace(req.query);
-
-        const query = "INSERT INTO [dbo].Apartment('Description', 'StreetAddress', 'PostalCode', 'City', 'UserId')" +
+        const query = "INSERT INTO Apartment('Description', 'StreetAddress', 'PostalCode', 'City', 'UserId')" +
             "VALUES('" +
-            req.query.description +
+            req.body.description +
             "','" +
-            req.query.streetAddress +
+            req.body.streetAddress +
             "','" +
-            req.query.postalCode +
+            req.body.postalCode +
             "','" +
-            req.query.city +
+            req.body.city +
             "','" +
-            req.query.userId + "');"
+            req.body.userId + "');"
 
         database.executeQuery(query, (err, rows) => {
             // verwerk error of result
@@ -59,11 +58,90 @@ module.exports = {
                     result: rows.recordset
                 })
             }
-        })
+        });
     },
 
-    test: function (req, res, next) {
-        console.log(req.body)
-        res.status(200).json(req.body);
+    getApartmentByID: (req, res, next) => {
+        logger.info('GET /api/apartments/:id aangeroepen!')
+        const id = req.params.id
+
+        const query = `SELECT * FROM Apartment WHERE ApartmentId = ${id};`
+        database.executeQuery(query, (err, rows) => {
+            // verwerk error of result
+            if (err) {
+                const errorObject = {
+                    message: 'Er ging iets mis in de database.',
+                    code: 500
+                }
+                next(errorObject)
+            }
+            if (rows) {
+                res.status(200).json({
+                    result: rows.recordset
+                })
+            }
+        });
+    },
+
+    updateApartmentByID: (req, res, next) => {
+        logger.info('PUT /api/apartments/:id aangeroepen!')
+        const id = req.params.id
+
+        logger.trace(req.body)
+
+        const query = `UPDATE Apartment SET Description = '${req.body.description}', 
+          StreetAddress = '${req.body.streetAddress}', PostalCode = '${req.body.postalCode}',
+          City = '${req.body.city}', UserId = ${req.body.userId} WHERE ApartmentId = ${id}`
+          database.executeQuery(query, (err, rows) => {
+            // verwerk error of result
+            if (err) {
+                const errorObject = {
+                    message: 'Er ging iets mis in de database.',
+                    code: 500
+                }
+                next(errorObject)
+            }
+            if (rows) {
+                res.status(200).json({
+                    result: rows.recordset
+                })
+            } else {
+                const error = {
+                    message: "Apartment with ID: " + id + " not found!",
+                    code: 404
+                }
+                logger.error(error);
+                next(error);
+            }
+        });
+    },
+
+    deleteApartmentByID: (req, res, next) => {
+        logger.info('DELETE /api/apartments/:id aangeroepen!')
+        const id = req.params.id
+
+        const query = `DELETE FROM Apartment WHERE ApartmentId = ${id}`
+        database.executeQuery(query, (err, rows) => {
+            // verwerk error of result
+            if (err) {
+                const errorObject = {
+                    message: 'Er ging iets mis in de database.',
+                    code: 500
+                }
+                next(errorObject)
+            }
+            if (rows) {
+                res.status(200).json({
+                    result: rows.recordset
+                })
+            } else {
+                const error = {
+                    message: "Apartment with ID: " + id + " not found!",
+                    code: 404
+                }
+                logger.error(error);
+                next(error);
+            }
+        });
     }
 }
