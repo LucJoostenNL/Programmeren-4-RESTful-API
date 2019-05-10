@@ -26,24 +26,24 @@ module.exports = {
         })
     },
 
-    createAppartment: (req, res, next) => {
+    createAppartment: function (req, res, next) {
         logger.info('POST /api/appartments aangeroepen!')
 
-        const apartment = req.body
+        logger.trace("Creating a new apartment into the database")
 
-        logger.trace(apartment)
+        logger.trace(req.query);
 
-        const query = "INSERT INTO Apartment('Description', 'StreetAddress', 'PostalCode', 'City', 'UserId')" +
+        const query = "INSERT INTO [dbo].Apartment('Description', 'StreetAddress', 'PostalCode', 'City', 'UserId')" +
             "VALUES('" +
-            apartment.description +
+            req.query.description +
             "','" +
-            apartment.streetAddress +
+            req.query.streetAddress +
             "','" +
-            apartment.postalCode +
+            req.query.postalCode +
             "','" +
-            apartment.city +
+            req.query.city +
             "','" +
-            apartment.userId + "'"
+            req.query.userId + "');"
 
         database.executeQuery(query, (err, rows) => {
             // verwerk error of result
@@ -53,12 +53,17 @@ module.exports = {
                     code: 500
                 }
                 next(errorObject)
-                }
+            }
             if (rows) {
                 res.status(200).json({
                     result: rows.recordset
                 })
             }
         })
+    },
+
+    test: function (req, res, next) {
+        console.log(req.body)
+        res.status(200).json(req.body);
     }
 }

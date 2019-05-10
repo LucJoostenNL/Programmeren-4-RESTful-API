@@ -6,10 +6,11 @@ const appartmentRentalRoutes = require("./SRC/ROUTES/appartments.routs");
 const reservationRoutes= require("./SRC/ROUTES/reservations.routes");
 
 const app = express()
-const port = process.env.PORT || 2019
+const port = process.env.PORT || 4500
+app.use(bodyparser.json())
 
 // Hier installeren we de routes
-app.use('/api/appartments', appartmentRentalRoutes)
+app.use('/api/apartments', appartmentRentalRoutes)
 //app.use('/api/appartments', reservationRoutes)
 
 // Generic endpoint handler - voor alle routes
@@ -40,7 +41,7 @@ app.all('*', (req, res, next) => {
   
   app.listen(port, () => logger.info(`Apartment rental app listening on port ${port}!`))
 
-  app.use(bodyparser.json())
+
 
 
   module.exports = app

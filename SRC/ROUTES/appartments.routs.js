@@ -4,7 +4,7 @@ const ApartmentController = require('../CONTROLLERS/appartments.controller')
 
 // appartements
 router.get('/', ApartmentController.getAppartments);
-router.post('/', ApartmentController.createAppartment);
+router.post('/', ApartmentController.test);
 
 // appartments with id
 router.get('/:id');
