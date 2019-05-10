@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node node_modules/mocha/bin/_mocha ./TEST/*apartments.mocha.test.js --reporter spec --exit"
   },
   "repository": {
     "type": "git",
@@ -27,12 +27,17 @@
   "homepage": "https://gitlab.com/LucJoosten/appartmentrentalnodejs#readme",
   "dependencies": {
     "express": "^4.16.4",
+    "jsonwebtoken": "^8.5.1",
     "mssql": "^5.1.0",
     "prettier": "^1.17.0",
     "tracer": "^0.9.8"
   },
   "devDependencies": {
     "body-parser": "^1.19.0",
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "husky": "^2.2.0",
+    "mocha": "^6.1.4",
     "nodemon": "^1.19.0"
   }
 }
