@@ -40,9 +40,7 @@ app.all('*', (req, res, next) => {
 
 // Hier installeren we de routes
    app.use('/api/appartments', appartmentRentalRoutes)
-   app.use('/api/appartments/:id', appartmentRentalRoutes)
-   app.use('/api/appartments/:id/reservations', reservationRoutes)
-   app.use('/api/appartments/:id/reservations/:id', reservationRoutes)
+   app.use('/api/appartments', reservationRoutes)
 
 
   module.exports = app

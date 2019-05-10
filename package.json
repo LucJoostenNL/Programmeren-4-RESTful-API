@@ -27,6 +27,7 @@
   "homepage": "https://gitlab.com/LucJoosten/appartmentrentalnodejs#readme",
   "dependencies": {
     "express": "^4.16.4",
+    "mssql": "^5.1.0",
     "tracer": "^0.9.8"
   },
   "devDependencies": {
