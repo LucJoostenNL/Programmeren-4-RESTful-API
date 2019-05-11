@@ -1,0 +1,7 @@
+Stefan
+dubbel routing uitleg door stijn in WA groep.
+POST        -   /api/appartments/:id/reservations
+GET         -   GET/api/ appartments/:id/reservations
+GET         -   /api/appartments/:id/reservations/:id
+PUT         -   PUT/api/ appartments/:id/reservations/:id
+DELETE      -   /api/appartments/:id/reservations/:id
