@@ -4,8 +4,8 @@ const AuthController = require('../CONTROLLERS/authentication.controller')
 
 // Authentication routes
 router.post('/register', AuthController.register)
-// router.post('/login', AuthController.login)
-// router.get('/login', AuthController.login)
+router.post('/login', AuthController.login)
+router.get('/login', AuthController.login)
 // router.get('/users', AuthController.getAll)
 
 module.exports = router

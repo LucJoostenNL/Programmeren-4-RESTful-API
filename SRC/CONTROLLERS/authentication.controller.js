@@ -4,41 +4,172 @@ const jwt = require('jsonwebtoken')
 
 module.exports = {
     register: (req, res, next) => {
-      logger.trace('register aangeroepen')
-  
-      // req.body uitlezen, geeft user data
-      // - valideer de juistheid
-      const user = req.body
-      logger.trace('user: ', user)
-  
-      // INSERT query samenstellen met user data
-      const query =
-        `INSERT INTO [DBUser] (FirstName, LastName, StreetAddress, ` +
-        `PostalCode, City, DateOfBirth, PhoneNumber, EmailAddress, Password) ` +
-        ` VALUES('${user.firstName}', '${user.lastName}', ` +
-        `'${user.streetAddress}', '${user.postalCode}', '${user.city}', ` +
-        `'${user.dateOfBirth}', '${user.phoneNumber}', '${user.emailAddress}', ` +
-        `'${user.password}'); SELECT SCOPE_IDENTITY() AS UserId`
-      logger.trace(query)
-  
-      // Query aanroepen op de database
-      database.executeQuery(query, (err, rows) => {
-        if (err) {
-          const errorObject = {
-            message: 'Er ging iets mis in de database.',
-            sql: {
-              message: err.message,
-              code: err.code
-            },
-            code: 500
-          }
-          next(errorObject)
-        }
-        if (rows) {
+        logger.trace('register aangeroepen')
 
-          // User geregistreerd, retourneer het UserId
-          res.status(200).json({ result: rows.recordset[0] })
+        // req.body uitlezen, geeft user data
+        // - valideer de juistheid
+        const user = req.body
+        logger.trace('user: ', user)
+
+        // INSERT query samenstellen met user data
+        const query =
+            `INSERT INTO [DBUser] (FirstName, LastName, StreetAddress, ` +
+            `PostalCode, City, DateOfBirth, PhoneNumber, EmailAddress, Password) ` +
+            ` VALUES('${user.firstName}', '${user.lastName}', ` +
+            `'${user.streetAddress}', '${user.postalCode}', '${user.city}', ` +
+            `'${user.dateOfBirth}', '${user.phoneNumber}', '${user.emailAddress}', ` +
+            `'${user.password}'); SELECT SCOPE_IDENTITY() AS UserId`
+        logger.trace(query)
+
+        // Query aanroepen op de database
+        database.executeQuery(query, (err, rows) => {
+            if (err) {
+                const errorObject = {
+                    message: 'Er ging iets mis in de database.',
+                    sql: {
+                        message: err.message,
+                        code: err.code
+                    },
+                    code: 500
+                }
+                next(errorObject)
+            }
+            if (rows) {
+
+                // User geregistreerd, retourneer het UserId
+                res.status(200).json({
+                    result: rows.recordset[0]
+                })
+            }
+        })
+    },
+
+    login: (req, res, next) => {
+        logger.info('register aangeroepen')
+
+        // req.body uitlezen, geeft user data
+        // ToDo: valideer dat we de juiste data ontvangen
+        const user = req.body
+        logger.trace('user: ', user)
+
+        // query samenstellen met user data
+        const query = `SELECT UserId, Password FROM [DBUser] WHERE EmailAddress = '${user.emailAddress}'`
+        logger.trace(query)
+
+        // Query aanroepen op de database
+        database.executeQuery(query, (err, rows) => {
+            if (err) {
+                const errorObject = {
+                    message: 'Er ging iets mis in de database.',
+                    code: 500
+                }
+                next(errorObject)
+            }
+            if (rows) {
+                // Als we hier zijn:
+                if (rows.recordset.length === 0) {
+                    // User niet gevonden, email adress bestaat niet
+                    logger.warn("no result! Did not found a matching user")
+                    res.status(401).json({
+                        result: []
+                    })
+                } else {
+                    // User gevonden, check passwords
+                    if (req.body.password === rows.recordset[0].Password) {
+                        const id = rows.recordset[0].UserId
+                        logger.info(`Password match, user with id: ${id} is logged in!`)
+                        logger.trace(rows.recordset)
+
+                        const payload = {
+                            UserId: rows.recordset[0].UserId
+                        }
+
+                        // user bestaat en geldig wachtwoord --> JSON token (JWT)
+                        jwt.sign({
+                            data: payload
+                        }, 'secretkey', {
+                            expiresIn: 60 * 60
+                        }, (err, token) => {
+                            if (err) {
+                                const errorObject = {
+                                    message: 'Kon geen JWT genereren.',
+                                    code: 500
+                                }
+                                next(errorObject)
+                            }
+                            if (token) {
+                                res.status(200).json({
+                                    result: {
+                                        token: token
+                                    }
+                                })
+                            }
+                        })
+                    } else {
+                        logger.warn('Password DO NOT match!')
+                        res.status(401).json({
+                            result: "Password DO NOT match!"
+                        })
+                    }
+                }
+            }
+        })
+    },
+
+    validateToken: (req, res, next) => {
+        logger.info('validateToken aangeroepen')
+        // logger.debug(req.headers)
+        const authHeader = req.headers.authorization
+        if (!authHeader) {
+            errorObject = {
+                message: 'Authorization header missing!',
+                code: 401
+            }
+            logger.warn('Validate token failed: ', errorObject.message)
+            return next(errorObject)
         }
-      })
+        const token = authHeader.substring(7, authHeader.length)
+
+        jwt.verify(token, 'secretkey', (err, payload) => {
+            if (err) {
+                errorObject = {
+                    message: 'not authorized',
+                    code: 401
+                }
+                logger.warn('Validate token failed: ', errorObject.message)
+                next(errorObject)
+            }
+            if (payload) {
+                logger.debug('token is valid', payload)
+                // User heeft toegang. Voeg UserId uit payload toe aan
+                // request, voor ieder volgend endpoint.
+                req.user = payload.data
+                next()
+            }
+        })
+    },
+
+    getAll: (req, res, next) => {
+        logger.trace('getAll aangeroepen')
+
+        // query samenstellen met user data
+        const query = `SELECT * FROM [DBUser]`
+
+        // Query aanroepen op de database
+        database.executeQuery(query, (err, rows) => {
+            if (err) {
+                logger.error('De query kon niet worden uitgevoerd!')
+                const errorObject = {
+                    message: 'Er ging iets mis in de database.',
+                    code: 500
+                }
+                next(errorObject)
+            }
+            if (rows) {
+                res.status(200).json({
+                    result: rows.recordset
+                })
+            }
+        })
     }
 }
