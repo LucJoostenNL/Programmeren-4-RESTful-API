@@ -1,5 +1,5 @@
 const assert = require('assert')
-const database = require('../src/datalayer/mssql.dao')
+const database = require('../SRC/DATALAYER/mssql.dao')
 
 describe('Apartments Database', () => {
   // Testcase
