@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 
 module.exports = {
     register: (req, res, next) => {
-      logger.info('register aangeroepen')
+      logger.trace('register aangeroepen')
   
       // req.body uitlezen, geeft user data
       // - valideer de juistheid
@@ -16,7 +16,7 @@ module.exports = {
         `INSERT INTO [DBUser] (FirstName, LastName, StreetAddress, ` +
         `PostalCode, City, DateOfBirth, PhoneNumber, EmailAddress, Password) ` +
         ` VALUES('${user.firstName}', '${user.lastName}', ` +
-        `'${user.streetAddress}', '${user.postCode}', '${user.city}', ` +
+        `'${user.streetAddress}', '${user.postalCode}', '${user.city}', ` +
         `'${user.dateOfBirth}', '${user.phoneNumber}', '${user.emailAddress}', ` +
         `'${user.password}'); SELECT SCOPE_IDENTITY() AS UserId`
       logger.trace(query)
@@ -35,6 +35,7 @@ module.exports = {
           next(errorObject)
         }
         if (rows) {
+
           // User geregistreerd, retourneer het UserId
           res.status(200).json({ result: rows.recordset[0] })
         }

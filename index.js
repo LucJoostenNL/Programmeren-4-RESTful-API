@@ -4,6 +4,7 @@ const bodyparser = require('body-parser');
 
 const appartmentRentalRoutes = require("./SRC/ROUTES/appartments.routs");
 const reservationRoutes= require("./SRC/ROUTES/reservations.routes");
+const authenticationRoutes = require('./SRC/ROUTES/authentication.routes')
 
 const app = express()
 const port = process.env.PORT || 4500
@@ -11,6 +12,7 @@ app.use(bodyparser.json())
 
 // Hier installeren we de routes
 app.use('/api/apartments', appartmentRentalRoutes)
+app.use('/api', authenticationRoutes)
 //app.use('/api/appartments', reservationRoutes)
 
 // Generic endpoint handler - voor alle routes
