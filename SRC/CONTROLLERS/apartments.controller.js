@@ -7,10 +7,21 @@ module.exports = {
 
         logger.trace('Appartement info is opgevraagd')
 
-        const query = "SELECT * FROM Apartment;"
+        const query = `SELECT (
+            SELECT *,
+                (SELECT * FROM DBUser WHERE DBUser.UserId = Apartment.UserId FOR JSON PATH) AS Landlord,
+                (SELECT * FROM Reservation WHERE Reservation.ApartmentId = Apartment.ApartmentId FOR JSON PATH) AS Reservations
+            FROM Apartment FOR JSON PATH 
+            ) AS Result`
 
+        logger.trace(query)
+        
         database.executeQuery(query, (err, rows) => {
             // verwerk error of result
+
+            const resultArray = rows.recordset
+            const resultObject = resultArray[0]
+
             if (err) {
                 const errorObject = {
                     message: 'Er ging iets mis in de database.',
@@ -19,9 +30,8 @@ module.exports = {
                 next(errorObject)
             }
             if (rows) {
-                res.status(200).json({
-                    result: rows.recordset
-                })
+                logger.warn(resultObject.Result)
+                res.status(200).json(JSON.parse(resultObject.Result))
             }
         });
     },
@@ -63,11 +73,24 @@ module.exports = {
 
     getApartmentByID: (req, res, next) => {
         logger.info('GET /api/apartments/:id aangeroepen!')
+
         const id = req.params.id
 
-        const query = `SELECT * FROM Apartment WHERE ApartmentId = ${id};`
+        const query = `SELECT (
+            SELECT Apartment.ApartmentId, Apartment.Description,
+                (SELECT * FROM DBUser WHERE DBUser.UserId = Apartment.UserId FOR JSON PATH) AS Landlord,
+                (SELECT * FROM Reservation WHERE Reservation.ApartmentId = Apartment.ApartmentId FOR JSON PATH) AS Reservations
+            FROM Apartment  WHERE Apartment.ApartmentId = ${id} FOR JSON PATH
+            ) AS Result`
+
+        logger.trace(query)
+        
         database.executeQuery(query, (err, rows) => {
             // verwerk error of result
+
+            const resultArray = rows.recordset
+            const resultObject = resultArray[0]
+
             if (err) {
                 const errorObject = {
                     message: 'Er ging iets mis in de database.',
@@ -75,10 +98,15 @@ module.exports = {
                 }
                 next(errorObject)
             }
-            if (rows) {
-                res.status(200).json({
-                    result: rows.recordset
+            if (rows === null) {
+                logger.warn('Result was null!')
+                res.status(404).json({
+                    message: 'Er was geen resultaat, resultaat is null!',
+                    code: 404
                 })
+            } else if(rows) {
+                logger.warn(resultObject.Result)
+                res.status(200).json(JSON.parse(resultObject.Result))
             }
         });
     },
