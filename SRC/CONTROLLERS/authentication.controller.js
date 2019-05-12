@@ -45,10 +45,9 @@ module.exports = {
     },
 
     login: (req, res, next) => {
-        logger.info('register aangeroepen')
+        logger.trace('register aangeroepen')
 
         // req.body uitlezen, geeft user data
-        // ToDo: valideer dat we de juiste data ontvangen
         const user = req.body
         logger.trace('user: ', user)
 
@@ -77,7 +76,7 @@ module.exports = {
                     // User gevonden, check passwords
                     if (req.body.password === rows.recordset[0].Password) {
                         const id = rows.recordset[0].UserId
-                        logger.info(`Password match, user with id: ${id} is logged in!`)
+                        logger.debug(`Password match, user with id: ${id} is logged in!`)
                         logger.trace(rows.recordset)
 
                         const payload = {
@@ -91,6 +90,7 @@ module.exports = {
                             expiresIn: 60 * 60
                         }, (err, token) => {
                             if (err) {
+                                logger.error('Kon geen JWT genereren')
                                 const errorObject = {
                                     message: 'Kon geen JWT genereren.',
                                     code: 500
@@ -98,6 +98,7 @@ module.exports = {
                                 next(errorObject)
                             }
                             if (token) {
+                                logger.info('Token generatie is een succes!')
                                 res.status(200).json({
                                     result: {
                                         token: token
@@ -117,7 +118,7 @@ module.exports = {
     },
 
     validateToken: (req, res, next) => {
-        logger.info('validateToken aangeroepen')
+        logger.trace('validateToken aangeroepen')
         // logger.debug(req.headers)
         const authHeader = req.headers.authorization
         if (!authHeader) {
@@ -171,5 +172,29 @@ module.exports = {
                 })
             }
         })
-    }
+    },
+
+    getUserByID: (req, res, next) => {
+        logger.trace('getUserByID aangeroepen!')
+    
+        // getting the inserted id value from the url
+        const id = req.params.id
+    
+        // samenstellen query om een user terug te krijgen
+        const query = `SELECT * FROM [DBUser] WHERE UserId = ${id}`
+    
+        // Query aanroepen op de database
+        database.executeQuery(query, (err, rows) => {
+          if (err) {
+            const errorObject = {
+              message: 'Er ging iets mis in de database.',
+              code: 500
+            }
+            next(errorObject)
+          }
+          if (rows) {
+            res.status(200).json({ result: rows.recordset })
+          }
+        })
+      }
 }

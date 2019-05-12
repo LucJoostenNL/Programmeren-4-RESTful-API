@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const ApartmentController = require('../CONTROLLERS/appartments.controller')
+const ApartmentController = require('../CONTROLLERS/apartments.controller')
 
 // appartements
 router.get('/', ApartmentController.getAppartments);

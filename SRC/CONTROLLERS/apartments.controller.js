@@ -3,9 +3,9 @@ const database = require('../DATALAYER/mssql.dao')
 
 module.exports = {
     getAppartments: (req, res, next) => {
-        logger.info('GET /api/appartments aangeroepen!')
+        logger.info('GET /api/apartments aangeroepen!')
 
-        logger.trace('Appartment info is asked')
+        logger.trace('Appartement info is opgevraagd')
 
         const query = "SELECT * FROM Apartment;"
 
@@ -27,7 +27,7 @@ module.exports = {
     },
 
     createAppartment: (req, res, next) => {
-        logger.info('POST /api/appartments aangeroepen!')
+        logger.info('POST /api/apartments aangeroepen!')
 
         logger.trace("Creating a new apartment into the database")
         logger.trace(req.body);
