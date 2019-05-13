@@ -1,9 +1,6 @@
 Stefan:
 dubbel routing uitleg door stijn in WA groep.
-POST        -   /api/appartments/:id/reservations
-GET         -   GET/api/ appartments/:id/reservations
-GET         -   /api/appartments/:id/reservations/:id
-PUT         -   PUT/api/ appartments/:id/reservations/:id
+
 DELETE      -   /api/appartments/:id/reservations/:id
 
 luc:
@@ -16,4 +13,7 @@ ENCODE AND DECODE PASSWORD TO/FROM DATABASE
 API TESTS
 
 samen:
-afspreken voor HTML - CSS - JAVASCRIPT FORM 
+afspreken voor HTML - CSS - JAVASCRIPT FORM
+Prepared statements
+invullen enviroment details voor DB connection (Heroku/gitlab)?
+Comments, Comments en nog is comments!
