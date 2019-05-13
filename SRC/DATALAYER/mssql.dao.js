@@ -31,5 +31,7 @@ module.exports = {
         })
       }
     })
-  }
+  },
+
+  closeConnection: () => {sql.close()}
 }
