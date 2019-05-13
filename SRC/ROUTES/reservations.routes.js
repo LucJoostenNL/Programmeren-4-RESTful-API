@@ -4,7 +4,7 @@ const reservationController = require('../CONTROLLERS/reservations.controller')
 
 // reservations from an apparment with id
 router.post('/:id/reservations', reservationController.createReservationByApartmentID);
-router.get('/:id/reservations');
+router.get('/:id/reservations', reservationController.getReservationByApartmentID);
 
 // reservations with an id form an appartment with id
 router.get('/:id/reservations/:id');
