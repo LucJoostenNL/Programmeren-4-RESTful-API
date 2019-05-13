@@ -36,9 +36,9 @@ module.exports = {
             }
             if (rows) {
 
-                //logger.warn(JSON.stringify(rows))
+                logger.warn(user)
                 // User geregistreerd, retourneer het UserId
-                res.status(200).json(JSON.stringify(rows))
+                res.status(200).json(user)
             }
         })
     },
