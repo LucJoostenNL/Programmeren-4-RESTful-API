@@ -44,16 +44,12 @@ module.exports = {
         logger.trace("Creating a new apartment into the database")
         logger.trace(req.body);
 
-        const query = "INSERT INTO Apartment('Description', 'StreetAddress', 'PostalCode', 'City', 'UserId')" +
+        const query = "INSERT INTO Apartment(Description, StreetAddress, PostalCode, City, UserId)" +
             "VALUES('" +
-            req.body.description +
-            "','" +
-            req.body.streetAddress +
-            "','" +
-            req.body.postalCode +
-            "','" +
-            req.body.city +
-            "','" +
+            req.body.description + "','" +
+            req.body.streetAddress + "','" +
+            req.body.postalCode + "','" + 
+            req.body.city + "','" +
             req.body.userId + "');"
 
         database.executeQuery(query, (err, rows) => {
