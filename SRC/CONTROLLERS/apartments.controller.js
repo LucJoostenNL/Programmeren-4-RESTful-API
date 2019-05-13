@@ -15,12 +15,13 @@ module.exports = {
             ) AS Result`
 
         logger.trace(query)
-        
+
         database.executeQuery(query, (err, rows) => {
             // verwerk error of result
 
             const resultArray = rows.recordset
             const resultObject = resultArray[0]
+            const apartment = req.body;
 
             if (err) {
                 const errorObject = {
@@ -31,7 +32,8 @@ module.exports = {
             }
             if (rows) {
                 logger.warn(resultObject.Result)
-                res.status(200).json(JSON.parse(resultObject.Result))
+                // res.status(200).json(JSON.parse(resultObject.Result))
+                res.status(200).json(apartment)
             }
         });
     },
@@ -84,7 +86,7 @@ module.exports = {
             ) AS Result`
 
         logger.trace(query)
-        
+
         database.executeQuery(query, (err, rows) => {
             // verwerk error of result
 
@@ -104,7 +106,7 @@ module.exports = {
                     message: 'Er was geen resultaat, resultaat is null!',
                     code: 404
                 })
-            } else if(rows) {
+            } else if (rows) {
                 logger.warn(resultObject.Result)
                 res.status(200).json(JSON.parse(resultObject.Result))
             }
@@ -120,7 +122,7 @@ module.exports = {
         const query = `UPDATE Apartment SET Description = '${req.body.description}', 
           StreetAddress = '${req.body.streetAddress}', PostalCode = '${req.body.postalCode}',
           City = '${req.body.city}', UserId = ${req.body.userId} WHERE ApartmentId = ${id}`
-          database.executeQuery(query, (err, rows) => {
+        database.executeQuery(query, (err, rows) => {
             // verwerk error of result
             if (err) {
                 const errorObject = {
