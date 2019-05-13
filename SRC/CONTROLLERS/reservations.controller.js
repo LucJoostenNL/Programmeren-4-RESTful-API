@@ -10,7 +10,9 @@ const database = require('../DATALAYER/mssql.dao')
 
             logger.debug(req.body)
 
-            const query = "INSERT INTO [dbo].[Reservation]('ApartmentId', 'StartDate', 'EndDate', 'Status', 'UserId')" +
+            
+
+            const query = "INSERT INTO [dbo].[Reservation](ApartmentId, StartDate, EndDate, [Status], UserId)" +
                 `VALUES('${req.params.id}'` +
                 ", '" + req.body.startDate + "'," +
                 "'" + req.body.endDate + "'," +
@@ -20,6 +22,8 @@ const database = require('../DATALAYER/mssql.dao')
                 logger.info(query)
             database.executeQuery(query, (err, rows) => {
                 // verwerk error of result
+                const reservation = req.body;
+                
                 if (err) {
                     const errorObject = {
                         message: 'Er ging iets mis in de database.',
@@ -28,9 +32,8 @@ const database = require('../DATALAYER/mssql.dao')
                     next(errorObject)
                 }
                 if (rows) {
-                    res.status(200).json({
-                        result: rows.recordset
-                    })
+                    logger.trace(rows.recordset)
+                    res.status(200).json(reservation)
                 }
             });
         },

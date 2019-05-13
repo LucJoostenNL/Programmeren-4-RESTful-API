@@ -25,9 +25,7 @@ before(() => {
   }
   jwt.sign({
     data: payload
-  }, 'secretkey', {
-    expiresIn: 2 * 60
-  }, (err, result) => {
+  }, 'secretkey', {expiresIn: 2 * 60}, (err, result) => {
     if (result) {
       token = result
     }
