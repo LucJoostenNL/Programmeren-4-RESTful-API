@@ -7,7 +7,7 @@ router.post('/:id/reservations', reservationController.createReservationByApartm
 router.get('/:id/reservations', reservationController.getReservationByApartmentID);
 
 // reservations with an id form an appartment with id
-router.get('/:id/reservations/:id');
+router.get('/:id/reservations/:resId', reservationController.getReservationByID);
 router.put('/:id/reservations/:id');
 router.delete('/:id/reservations/:id');
 
