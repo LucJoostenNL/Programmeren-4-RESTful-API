@@ -36,10 +36,9 @@ module.exports = {
             }
             if (rows) {
 
+                //logger.warn(JSON.stringify(rows))
                 // User geregistreerd, retourneer het UserId
-                res.status(200).json({
-                    result: rows.recordset[0]
-                })
+                res.status(200).json(JSON.stringify(rows))
             }
         })
     },
@@ -176,25 +175,27 @@ module.exports = {
 
     getUserByID: (req, res, next) => {
         logger.trace('getUserByID aangeroepen!')
-    
+
         // getting the inserted id value from the url
         const id = req.params.id
-    
+
         // samenstellen query om een user terug te krijgen
         const query = `SELECT * FROM [DBUser] WHERE UserId = ${id}`
-    
+
         // Query aanroepen op de database
         database.executeQuery(query, (err, rows) => {
-          if (err) {
-            const errorObject = {
-              message: 'Er ging iets mis in de database.',
-              code: 500
+            if (err) {
+                const errorObject = {
+                    message: 'Er ging iets mis in de database.',
+                    code: 500
+                }
+                next(errorObject)
             }
-            next(errorObject)
-          }
-          if (rows) {
-            res.status(200).json({ result: rows.recordset })
-          }
+            if (rows) {
+                res.status(200).json({
+                    result: rows.recordset
+                })
+            }
         })
-      }
+    }
 }
