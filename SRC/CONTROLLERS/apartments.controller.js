@@ -31,9 +31,8 @@ module.exports = {
                 next(errorObject)
             }
             if (rows) {
-                logger.warn(resultObject.Result)
-                // res.status(200).json(JSON.parse(resultObject.Result))
-                res.status(200).json(apartment)
+                //logger.warn(resultObject.Result)
+                res.status(200).json(JSON.parse(resultObject.Result))
             }
         });
     },
@@ -50,7 +49,7 @@ module.exports = {
             req.body.streetAddress + "','" +
             req.body.postalCode + "','" + 
             req.body.city + "','" +
-            req.body.userId + "');"
+            req.body.userId + "');";
 
         database.executeQuery(query, (err, rows) => {
             // verwerk error of result
@@ -96,15 +95,28 @@ module.exports = {
                 }
                 next(errorObject)
             }
-            if (rows === null) {
-                logger.warn('Result was null!')
-                res.status(404).json({
-                    message: 'Er was geen resultaat, resultaat is null!',
-                    code: 404
-                })
-            } else if (rows) {
-                logger.warn(resultObject.Result)
+            // if (rows === 0) {
+            //     logger.warn('Result was null!')
+            //     res.status(404).json({
+            //         message: 'Er was geen resultaat, resultaat is null!',
+            //         code: 404
+            //     })
+            // } else if (rows != 0) {
+            //     //logger.warn(resultObject.Result)
+            //     res.status(200).json(JSON.parse(resultObject.Result))
+            // }
+
+            if(rows) {
+                if(rows.recordset.length != 0) {
                 res.status(200).json(JSON.parse(resultObject.Result))
+                } else if (res === null) {
+                    const error = {
+                        message: "Apartment with ID: " + id + " not found!",
+                        code: 404
+                    }
+                    logger.error(error);
+                    next(error);
+                }
             }
         });
     },
@@ -118,7 +130,11 @@ module.exports = {
         const query = `UPDATE Apartment SET Description = '${req.body.description}', 
           StreetAddress = '${req.body.streetAddress}', PostalCode = '${req.body.postalCode}',
           City = '${req.body.city}', UserId = ${req.body.userId} WHERE ApartmentId = ${id}`
+
         database.executeQuery(query, (err, rows) => {
+
+            logger.warn(rows)
+
             // verwerk error of result
             if (err) {
                 const errorObject = {
@@ -127,11 +143,12 @@ module.exports = {
                 }
                 next(errorObject)
             }
-            if (rows) {
+            if (rows.rowsAffected[0] != 0) {
                 res.status(200).json({
-                    result: rows.recordset
+                    result: req.body,
+                    code: 200
                 })
-            } else {
+            } else if (rows.rowsAffected[0] === 0) {
                 const error = {
                     message: "Apartment with ID: " + id + " not found!",
                     code: 404
@@ -146,8 +163,10 @@ module.exports = {
         logger.info('DELETE /api/apartments/:id aangeroepen!')
         const id = req.params.id
 
+        
         const query = `DELETE FROM Apartment WHERE ApartmentId = ${id}`
         database.executeQuery(query, (err, rows) => {
+
             // verwerk error of result
             if (err) {
                 const errorObject = {
@@ -156,11 +175,12 @@ module.exports = {
                 }
                 next(errorObject)
             }
-            if (rows) {
+            if (rows.recordset.length != 0) {
                 res.status(200).json({
-                    result: rows.recordset
+                    result: rows,
+                    code: 200
                 })
-            } else {
+            } else if (rows.recordset.length === 0) {
                 const error = {
                     message: "Apartment with ID: " + id + " not found!",
                     code: 404
