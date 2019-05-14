@@ -1,9 +1,9 @@
-const express = require('express');
+const express = require('express')
 const logger = require('./SRC/CONFIG/app.config').logger
-const bodyparser = require('body-parser');
+const bodyparser = require('body-parser')
 
-const appartmentRentalRoutes = require("./SRC/ROUTES/apartments.routs");
-const reservationRoutes = require("./SRC/ROUTES/reservations.routes");
+const appartmentRentalRoutes = require('./SRC/ROUTES/apartments.routs')
+const reservationRoutes = require('./SRC/ROUTES/reservations.routes')
 const authenticationRoutes = require('./SRC/ROUTES/authentication.routes')
 
 const app = express()
@@ -19,10 +19,7 @@ app.use('/api/apartments', reservationRoutes)
 app.all('*', (req, res, next) => {
   // logger.info('Generieke afhandeling aangeroepen!')
   // ES16 deconstructuring
-  const {
-    method,
-    url
-  } = req
+  const { method, url } = req
   logger.info(`${method} ${url}`)
   next()
 })
@@ -45,8 +42,5 @@ app.use((error, req, res, next) => {
 })
 
 app.listen(port, () => logger.info(`Apartment rental app listening on port ${port}!`))
-
-
-
 
 module.exports = app
