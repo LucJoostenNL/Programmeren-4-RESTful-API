@@ -59,7 +59,8 @@ module.exports = {
             }
             if (rows) {
                 res.status(200).json({
-                    result: rows.recordset
+                    result: rows.recordset[0],
+                    code: 200
                 })
             }
         });
