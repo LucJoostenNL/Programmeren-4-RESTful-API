@@ -3,9 +3,16 @@ const database = require('../DATALAYER/mssql.dao')
 const jwt = require('jsonwebtoken')
 const assert = require('assert')
 const secretkey = require('../CONFIG/app.config').secretKey
+const validator = require('../VALIDATORS/user.validator')
 
+// validators using RegularExpression
 const phoneValidator = new RegExp('^06(| |-)[0-9]{8}$')
+const nameValidator = new RegExp('^[a-zA-Z][a-z A-Z]*$')
+const postalCodeValidator = new RegExp('^([0-9]{4}[ ]+[a-zA-Z]{2})$')
+const emailAddressValidator = /^([a-zA-Z0-9_\-\.]+)@(gmail|hotmail|yahoo|live|outlook|avans)\.(com|nl|org|aus|be|de)$/;
+//const emailAddressValidator = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/
 
+// constant variables to use for encryption with bcrypt
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
@@ -16,27 +23,41 @@ module.exports = {
         const user = req.body
         logger.info(user)
 
-        try {
-            assert.equal(typeof user.firstName, 'string', 'first name is required.')
-            assert.equal(typeof user.lastName, 'string', 'last name is required.')
-            assert.equal(typeof user.streetAddress, 'string', 'Street address is required.')
-            assert.equal(typeof user.postalCode, 'string', 'Postal code is required.')
-            assert.equal(typeof user.city, 'string', 'City is required.')
-            assert.equal(typeof user.dateOfBirth, 'string', 'Date of birth is required.')
-            assert.equal(typeof user.emailAddress, 'string', 'Email Address is required.')
-            assert.equal(typeof user.password, 'string', 'Password is required.')
+        // try {
+            
+        //     assert.equal(typeof user.firstName, 'string', 'first name is required.')
+        //     assert.equal(typeof user.lastName, 'string', 'last name is required.')
+        //     assert.equal(typeof user.streetAddress, 'string', 'Street address is required.')
+        //     assert.equal(typeof user.postalCode, 'string', 'Postal code is required.')
+        //     assert.equal(typeof user.city, 'string', 'City is required.')
+        //     assert.equal(typeof user.dateOfBirth, 'string', 'Date of birth is required.')
+        //     assert.equal(typeof user.emailAddress, 'string', 'Email Address is required.')
+        //     assert.equal(typeof user.password, 'string', 'Password is required.')
 
-            assert(phoneValidator.test(user.phoneNumber), 'A valid phone number is required')
+        //     assert(phoneValidator.test(user.phoneNumber), 'A valid phone number is required')
 
 
-        } catch (exception) {
-            const errorObject = {
-                message: 'Validation fails: ' + exception.toString(),
-                code: 500
-            }
-            return next(errorObject)
+        // } catch (exception) {
+        //     const errorObject = {
+        //         message: 'Validation fails: ' + exception.toString(),
+        //         code: 500
+        //     }
+        //     return next(errorObject)
+        // }
+
+        function validateUser() {
+            validator.validateUser(user, (callback) => {
+                if(callback != null) {
+                    const errorObject = {
+                        message: 'Validaiton failde due to: ' + callback.message.toString(),
+                        code: 500
+                    }
+                    next(errorObject)
+                    return;
+                }
+            })
         }
-
+        
 
         bcrypt.genSalt(saltRounds, (err, salt) => {
             bcrypt.hash(user.password, salt, (err, hash) => {
@@ -92,6 +113,14 @@ module.exports = {
 
     login: (req, res, next) => {
         logger.trace('register aangeroepen')
+        function validateEmail(email) 
+        {
+            var re = /^([a-zA-Z0-9_\-\.]+)@(gmail|hotmail|yahoo|live|outlook|avans)\.(com|nl|org|aus|be|de)$/;
+            //var re = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/
+            return re.test(email);
+        }
+
+        logger.warn(validateEmail(req.body.emailAddress))
 
         // req.body uitlezen, geeft user data
         const user = req.body

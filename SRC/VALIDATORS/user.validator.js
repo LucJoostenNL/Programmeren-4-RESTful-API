@@ -23,9 +23,13 @@ module.exports = {
             return;
         }
 
-        //
-        
+        //check date of birth
+        const birth = new RegExp('^((0|1)\d{1})-((0|1|2)\d{1})-((19|20)\d{2})')
+        if (typeof user.dateOfBirth != 'string' || !birth.test(user.dateOfBirth)) {
+            const errorObject = {
+                message: 'Date of birth is missing or invalid, format to write is: YYYY-MM-DD',
+                code: 400
+            }
+        }       
     }
-    
-
 }
