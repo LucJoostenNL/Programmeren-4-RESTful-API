@@ -10,6 +10,6 @@ router.get('/:id/reservations', validateToken, reservationController.getReservat
 // reservations with an id form an appartment with id
 router.get('/:id/reservations/:resId', validateToken, reservationController.getReservationByID);
 router.put('/:appId/reservations/:resId', validateToken, reservationController.updateReservationByID);
-router.delete('/:id/reservations/:id');
+router.delete('/:appId/reservations/:resId', validateToken, reservationController.deleteReservationByID);
 
 module.exports = router

@@ -19,7 +19,7 @@ module.exports = {
       req.body.status +
       "'," +
       "'" +
-      req.body.userId +
+      req.user.UserId +
       "')"
 
     logger.info(query)
@@ -101,16 +101,11 @@ module.exports = {
     logger.info('PUT /api/apartments/:id/reservations/:userId')
     logger.trace('Updaten van een reservering door een gegeven ID')
 
-    // Validate user
-    logger.trace('validate User - NYI')
-
-    // Onthoud, id = req.params.id
-    //      userId = body.userId
-
+    // Create query
     const query =
-      'UPDATE Reservation SET Status = \'' +
+      "UPDATE Reservation SET Status = '" +
       req.body.status +
-      '\' WHERE ApartmentId = ' +
+      "' WHERE ApartmentId = " +
       req.params.appId +
       ' AND ReservationId = ' +
       req.params.resId +
@@ -141,9 +136,28 @@ module.exports = {
 
   deleteReservationByID: (req, res, next) => {
     logger.info('DELETE /api/apartments/:id/reservations/:id')
+    logger.trace('Meld de gegeven deelnemer af voor deze activiteit')
+
+    // Create query
+    const query = "DELETE FROM Reservation WHERE ApartmentId = " + req.params.appId + " AND ReservationId = " + req.params.resId + " AND UserId = " + req.user.UserId;
+    logger.trace(query)
 
     logger.trace('Verwijderen reservering door een gegeven ID')
-
-    logger.debug(req.body)
+    database.executeQuery(query, (err, rows) => {
+      // verwerk error of result
+      if (err) {
+        const errorObject = {
+          message: 'Er ging iets mis in de database.',
+          code: 500
+        }
+        next(errorObject)
+      }
+      if (rows) {
+        res.status(200).json({
+          result: rows.recordset
+        })
+        logger.debug(rows.recordset)
+      }
+    })
   }
 }
