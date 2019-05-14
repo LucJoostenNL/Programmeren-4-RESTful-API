@@ -57,6 +57,6 @@ production:
     - apt-get update -qy
     - apt-get install -y ruby-dev
     - gem install dpl
-    - dpl --provider=heroku --app=$apartment-rental-assignment --api-key=$691f1a58-ac34-4007-9252-3ef465e95e50
+    - dpl --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY
   only:
     - master
