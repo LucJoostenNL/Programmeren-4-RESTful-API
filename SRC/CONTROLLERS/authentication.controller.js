@@ -68,7 +68,10 @@ module.exports = {
                                         }
                                         if (rows) {
                                             logger.trace(rows.recordset)
-                                            res.status(200).json(user)
+                                            res.status(200).json({
+                                                Result: rows.recordset[0],
+                                                code: 200
+                                                })
                                         }
                                     })
                                 } else {
