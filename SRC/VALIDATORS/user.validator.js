@@ -17,7 +17,7 @@ module.exports = {
         if (typeof user.LastName !== "string" || !nameValidator.test(user.LastName)){
             const errorObject = {
                 message: 'Last name missing or invalid',
-                code: 400
+                code: 406
             }
             callback(errorObject)
             return;
