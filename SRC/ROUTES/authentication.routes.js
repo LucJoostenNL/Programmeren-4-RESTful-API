@@ -1,12 +1,12 @@
 const express = require('express')
 const router = express.Router()
-const AuthController = require('../CONTROLLERS/authentication.controller')
+const validateToken = require('../CONTROLLERS/authentication.controller')
 
 // Authentication routes
-router.post('/register', AuthController.register)
-router.post('/login', AuthController.login)
-router.get('/login', AuthController.login)
-router.get('/users', AuthController.getAll)
-router.get('/users/:id', AuthController.getUserByID)
+router.post('/register', validateToken.register)
+router.post('/login', validateToken.login)
+router.get('/login', validateToken.login)
+router.get('/users', validateToken.getAll)
+router.get('/users/:id', validateToken.getUserByID)
 
 module.exports = router

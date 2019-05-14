@@ -4,7 +4,6 @@ const database = require('../DATALAYER/mssql.dao')
 module.exports = {
     getAppartments: (req, res, next) => {
         logger.info('GET /api/apartments aangeroepen!')
-
         logger.trace('Appartement info is opgevraagd')
 
         const query = `SELECT (
@@ -39,9 +38,7 @@ module.exports = {
 
     createAppartment: (req, res, next) => {
         logger.info('POST /api/apartments aangeroepen!')
-
         logger.trace("Creating a new apartment into the database")
-        logger.trace(req.body);
 
         const query = "INSERT INTO Apartment(Description, StreetAddress, PostalCode, City, UserId)" +
             "VALUES('" +
