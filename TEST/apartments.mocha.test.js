@@ -206,31 +206,4 @@ describe('Apartments Database', () => {
       }
     })
   })
-
-  // Testcase
-  it('qwe', done => {
-    database.closeConnection()
-
-    // wat verwachten we dat waar is?
-    const query = `SELECT * FROM Reservation WHERE ReservationId = 3`
-
-    database.executeQuery(query, (err, res) => {
-      if (err) {
-        logger.error(err.message)
-        done(err.message)
-      } else {
-        assert(res.Status != 'ACEPTED')
-        assert((res.Status = 'ACCEPTED'))
-        assert((res.ApartmentId = '3'))
-        assert(res.ApartmentId != '324')
-        assert(res.UserId != '112')
-        assert((res.UserId = '1'))
-        assert((res.StartDate = '2019-05-15'))
-        assert(res.EndDate != '2019-05-18')
-
-        assert(res != null)
-        done()
-      }
-    })
-  })
 })
