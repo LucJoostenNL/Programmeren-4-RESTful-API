@@ -58,10 +58,7 @@ module.exports = {
                 next(errorObject)
             }
             if (rows) {
-                res.status(200).json({
-                    result: rows.recordset[0],
-                    code: 200
-                })
+                res.status(200).json(req.body)
             }
         });
     },
