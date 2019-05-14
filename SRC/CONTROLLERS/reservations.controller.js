@@ -8,19 +8,11 @@ module.exports = {
 
     const query =
       'INSERT INTO [dbo].[Reservation](ApartmentId, StartDate, EndDate, [Status], UserId)' +
-      `VALUES('${req.params.id}'` +
-      ", '" +
-      req.body.startDate +
-      "'," +
-      "'" +
-      req.body.endDate +
-      "'," +
-      "'" +
-      req.body.status +
-      "'," +
-      "'" +
-      req.user.UserId +
-      "')"
+      `VALUES('${req.params.id}'` + ", '" +
+      req.body.startDate + "', '" +
+      req.body.endDate + "', '" +
+      req.body.status + "', '" +
+      req.user.UserId + "')"
 
     logger.info(query)
     database.executeQuery(query, (err, rows) => {
