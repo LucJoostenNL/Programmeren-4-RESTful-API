@@ -1,9 +1,7 @@
 const logger = require('../CONFIG/app.config').logger
 const database = require('../DATALAYER/mssql.dao')
 const jwt = require('jsonwebtoken')
-const assert = require('assert')
 const secretkey = require('../CONFIG/app.config').secretKey
-const validator = require('../VALIDATORS/user.validator')
 
 // validators using RegularExpression
 const phoneValidator = new RegExp('^06(| |-)[0-9]{8}$')
@@ -23,42 +21,6 @@ module.exports = {
 
         const user = req.body
         logger.info(user)
-
-        // try {
-
-        //     assert.equal(typeof user.firstName, 'string', 'first name is required.')
-        //     assert.equal(typeof user.lastName, 'string', 'last name is required.')
-        //     assert.equal(typeof user.streetAddress, 'string', 'Street address is required.')
-        //     assert.equal(typeof user.postalCode, 'string', 'Postal code is required.')
-        //     assert.equal(typeof user.city, 'string', 'City is required.')
-        //     assert.equal(typeof user.dateOfBirth, 'string', 'Date of birth is required.')
-        //     assert.equal(typeof user.emailAddress, 'string', 'Email Address is required.')
-        //     assert.equal(typeof user.password, 'string', 'Password is required.')
-
-        //     assert(phoneValidator.test(user.phoneNumber), 'A valid phone number is required')
-
-
-        // } catch (exception) {
-        //     const errorObject = {
-        //         message: 'Validation fails: ' + exception.toString(),
-        //         code: 500
-        //     }
-        //     return next(errorObject)
-        // }
-
-        // function validateUser() {
-        //     validator.validateUser(user, (callback) => {
-        //         if (callback != null) {
-        //             const errorObject = {
-        //                 message: 'Validaiton failde due to: ' + callback.message.toString(),
-        //                 code: 500
-        //             }
-        //             next(errorObject)
-        //             return;
-        //         }
-        //     })
-        // }
-
 
         bcrypt.genSalt(saltRounds, (err, salt) => {
             bcrypt.hash(user.password, salt, (err, hash) => {
