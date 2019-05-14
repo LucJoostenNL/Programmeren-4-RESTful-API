@@ -95,16 +95,6 @@ module.exports = {
                 }
                 next(errorObject)
             }
-            // if (rows === 0) {
-            //     logger.warn('Result was null!')
-            //     res.status(404).json({
-            //         message: 'Er was geen resultaat, resultaat is null!',
-            //         code: 404
-            //     })
-            // } else if (rows != 0) {
-            //     //logger.warn(resultObject.Result)
-            //     res.status(200).json(JSON.parse(resultObject.Result))
-            // }
 
             if(rows) {
                 if(rows.recordset.length != 0) {

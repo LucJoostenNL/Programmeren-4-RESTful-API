@@ -25,7 +25,9 @@ before(() => {
   }
   jwt.sign({
     data: payload
-  }, 'secretkey', {expiresIn: 2 * 60}, (err, result) => {
+  }, 'secretkey', {
+    expiresIn: 2 * 60
+  }, (err, result) => {
     if (result) {
       token = result
     }
@@ -162,3 +164,46 @@ describe('Apartments routes - GET all apartments', () => {
     done()
   })
 })
+
+
+/*  ==========================       
+    =    DELETE METHOD TEST  =
+    ==========================
+*/
+describe('Deletes a movie from the server by ID', () => {
+
+  it('Deletes a movie by ID (PUT - method)', done => {
+    chai
+      .request(server)
+      .delete('api/apartments/1')
+      .end((err, res) => {
+        res.status.should.equal(200).json('Movie with ID: ' + id + ' is deleted');
+        chai.request(server)
+          .get('api/apartments/1')
+          .end((err, response) => {
+            response.status(404)
+            response.should.be.json;
+            response.body.should.not.have.property('title');
+            response.body.should.not.have.property('description');
+            response.body.should.not.have.property('releaseYear');
+            response.body.should.not.have.property('director');
+            done();
+          });
+
+
+      });
+  });
+
+  it("should return an error with code: 404", done => {
+    chai
+      .request(server)
+      .delete("/random")
+      .end((err, res) => {
+
+        // Because the path is not right, the status should
+        // return an error with status code 404
+        res.status.should.equal(404);
+        done();
+      });
+  });
+});

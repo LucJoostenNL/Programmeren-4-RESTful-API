@@ -6,6 +6,9 @@ const secretkey = require('../CONFIG/app.config').secretKey
 
 const phoneValidator = new RegExp('^06(| |-)[0-9]{8}$')
 
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 module.exports = {
     register: (req, res, next) => {
         logger.trace('register user - POST aangeroepen!')
@@ -34,32 +37,56 @@ module.exports = {
             return next(errorObject)
         }
 
-        const query = `INSERT INTO [DBUser] (FirstName, LastName, StreetAddress, PostalCode, City, DateOfBirth, PhoneNumber, EmailAddress, Password) VALUES (
-            '${user.firstName}', 
-            '${user.lastName}',
-            '${user.streetAddress}',
-            '${user.postalCode}',
-            '${user.city}',
-            '${user.dateOfBirth}',
-            '${user.phoneNumber}',
-            '${user.emailAddress}',
-            '${user.password}'); 
-            SELECT SCOPE_IDENTITY() AS UserId`;
 
-
-        database.executeQuery(query, (err, rows) => {
-            if (err) {
-                const errorObject = {
-                    message: 'Er is iets misgegaan in de database',
-                    code: 500
+        bcrypt.genSalt(saltRounds, (err, salt) => {
+            bcrypt.hash(user.password, salt, (err, hash) => {
+                if (err) {
+                    const errorObject = {
+                        message: 'Er ging iets mis met het hashen van het wachtwoord',
+                        code: 500
+                    }
+                    next(errorObject);
                 }
-                next(errorObject)
-            }
-            if (rows) {
-                logger.trace(rows.recordset)
-                res.status(200).json(user)
-            }
-        })
+
+                if (hash) {
+                    // Store hash in your password DB.
+
+                    const query = `INSERT INTO [DBUser] (FirstName, LastName, StreetAddress, PostalCode, City, DateOfBirth, PhoneNumber, EmailAddress, Password) VALUES (
+                    '${user.firstName}', 
+                    '${user.lastName}',
+                    '${user.streetAddress}',
+                    '${user.postalCode}',
+                    '${user.city}',
+                    '${user.dateOfBirth}',
+                    '${user.phoneNumber}',
+                    '${user.emailAddress}',
+                    '${hash}'); 
+                    SELECT SCOPE_IDENTITY() AS UserId`;
+
+
+                    database.executeQuery(query, (err, rows) => {
+                        if (err) {
+                            const errorObject = {
+                                message: 'Er is iets misgegaan in de database',
+                                code: 500
+                            }
+                            next(errorObject)
+                        }
+                        if (rows) {
+                            logger.trace(rows.recordset)
+                            res.status(200).json(user)
+                        }
+                    })
+                } else {
+                    const error = {
+                        message: "Apartment with ID: " + id + " not found!",
+                        code: 404
+                    }
+                    logger.error(error);
+                    next(error);
+                }
+            });
+        });
 
     },
 
@@ -89,52 +116,67 @@ module.exports = {
                     // User niet gevonden, email adress bestaat niet
                     logger.warn("no result! Did not found a matching user")
                     res.status(401).json({
-                        result: []
+                        result: 'No results!',
+                        code: 401
                     })
                 } else {
-                    // User gevonden, check passwords
-                    if (req.body.password === rows.recordset[0].Password) {
-                        const id = rows.recordset[0].UserId
-                        logger.debug(`Password match, user with id: ${id} is logged in!`)
-                        logger.trace(rows.recordset)
-
-                        const payload = {
-                            UserId: rows.recordset[0].UserId
+                    /* password decrypten zodat het password vergeleken kan worden */
+                
+                    bcrypt.compare(req.body.password, rows.recordset[0].Password, (err, response) => {
+                        if (err) {
+                            const errorObject = {
+                                message: err.message.toString(),
+                                code: 500
+                            }
+                            next(errorObject)
                         }
 
-                        // user bestaat en geldig wachtwoord --> JSON token (JWT)
-                        jwt.sign({
-                            data: payload
-                        }, 'secretkey', {
-                            expiresIn: '7d'
-                        }, (err, token) => {
-                            if (err) {
-                                logger.error('Kon geen JWT genereren')
-                                const errorObject = {
-                                    message: 'Kon geen JWT genereren.',
-                                    code: 500
-                                }
-                                next(errorObject)
+                        if (response) {
+                            const id = rows.recordset[0].UserId
+                            logger.debug(`Password match, user with id: ${id} is logged in!`)
+                            logger.trace(rows.recordset)
+
+                            const payload = {
+                                UserId: rows.recordset[0].UserId
                             }
-                            if (token) {
-                                logger.info('Token generatie is een succes!')
-                                res.status(200).json({
-                                    result: {
-                                        token: token
+
+                            // user bestaat en geldig wachtwoord --> JSON token (JWT)
+                            jwt.sign({
+                                data: payload
+                            }, 'secretkey', {
+                                expiresIn: '7d'
+                            }, (err, token) => {
+                                if (err) {
+                                    logger.error('Kon geen JWT genereren')
+                                    const errorObject = {
+                                        message: 'Kon geen JWT genereren.',
+                                        code: 500
                                     }
-                                })
-                            }
-                        })
-                    } else {
-                        logger.warn('Password DO NOT match!')
-                        res.status(401).json({
-                            result: "Password DO NOT match!"
-                        })
-                    }
+                                    next(errorObject)
+                                }
+                                if (token) {
+                                    logger.info('Token generatie is een succes!')
+                                    res.status(200).json({
+                                        result: {
+                                            token: token
+                                        }
+                                    })
+                                }
+                            })
+                        } else {
+                            logger.warn('Password DO NOT match!')
+                            res.status(401).json({
+                                result: "Password DO NOT match!"
+                            })
+                        }
+
+                    })
                 }
             }
         })
     },
+
+
 
     validateToken: (req, res, next) => {
         logger.trace('validateToken aangeroepen')
