@@ -5,11 +5,9 @@ DELETE      -   /api/appartments/:id/reservations/:id
 
 luc:
 RETURN SUCCES AFTER LOG IN
-ENCODE AND DECODE PASSWORD TO/FROM DATABASE
 API TESTS
 
 samen:
-afspreken voor HTML - CSS - JAVASCRIPT FORM
 Prepared statements
 invullen enviroment details voor DB connection (Heroku/gitlab)?
 Comments, Comments en nog is comments!

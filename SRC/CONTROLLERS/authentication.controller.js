@@ -1,15 +1,14 @@
 const logger = require('../CONFIG/app.config').logger
 const database = require('../DATALAYER/mssql.dao')
 const jwt = require('jsonwebtoken')
-const assert = require('assert')
 const secretkey = require('../CONFIG/app.config').secretKey
-const validator = require('../VALIDATORS/user.validator')
 
 // validators using RegularExpression
 const phoneValidator = new RegExp('^06(| |-)[0-9]{8}$')
 const nameValidator = new RegExp('^[a-zA-Z][a-z A-Z]*$')
 const postalCodeValidator = new RegExp('^([0-9]{4}[ ]+[a-zA-Z]{2})$')
-const emailAddressValidator = /^([a-zA-Z0-9_\-\.]+)@(gmail|hotmail|yahoo|live|outlook|avans)\.(com|nl|org|aus|be|de)$/;
+//const emailAddressValidator = /^([a-zA-Z0-9_\-\.]+)@(gmail|hotmail|yahoo|live|outlook|avans)\.(com|nl|org|aus|be|de)$/;
+const emailAddressValidator = new RegExp(/(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/)
 //const emailAddressValidator = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/
 
 // constant variables to use for encryption with bcrypt
@@ -23,42 +22,6 @@ module.exports = {
         const user = req.body
         logger.info(user)
 
-        // try {
-            
-        //     assert.equal(typeof user.firstName, 'string', 'first name is required.')
-        //     assert.equal(typeof user.lastName, 'string', 'last name is required.')
-        //     assert.equal(typeof user.streetAddress, 'string', 'Street address is required.')
-        //     assert.equal(typeof user.postalCode, 'string', 'Postal code is required.')
-        //     assert.equal(typeof user.city, 'string', 'City is required.')
-        //     assert.equal(typeof user.dateOfBirth, 'string', 'Date of birth is required.')
-        //     assert.equal(typeof user.emailAddress, 'string', 'Email Address is required.')
-        //     assert.equal(typeof user.password, 'string', 'Password is required.')
-
-        //     assert(phoneValidator.test(user.phoneNumber), 'A valid phone number is required')
-
-
-        // } catch (exception) {
-        //     const errorObject = {
-        //         message: 'Validation fails: ' + exception.toString(),
-        //         code: 500
-        //     }
-        //     return next(errorObject)
-        // }
-
-        function validateUser() {
-            validator.validateUser(user, (callback) => {
-                if(callback != null) {
-                    const errorObject = {
-                        message: 'Validaiton failde due to: ' + callback.message.toString(),
-                        code: 500
-                    }
-                    next(errorObject)
-                    return;
-                }
-            })
-        }
-        
-
         bcrypt.genSalt(saltRounds, (err, salt) => {
             bcrypt.hash(user.password, salt, (err, hash) => {
                 if (err) {
@@ -70,51 +33,92 @@ module.exports = {
                 }
 
                 if (hash) {
-                    // Store hash in your password DB.
 
-                    const query = `INSERT INTO [DBUser] (FirstName, LastName, StreetAddress, PostalCode, City, DateOfBirth, PhoneNumber, EmailAddress, Password) VALUES (
-                    '${user.firstName}', 
-                    '${user.lastName}',
-                    '${user.streetAddress}',
-                    '${user.postalCode}',
-                    '${user.city}',
-                    '${user.dateOfBirth}',
-                    '${user.phoneNumber}',
-                    '${user.emailAddress}',
-                    '${hash}'); 
-                    SELECT SCOPE_IDENTITY() AS UserId`;
+                    // check if firstname and lastname is valid
+                    if (nameValidator.test(user.firstName) && nameValidator.test(user.lastName)) {
 
+                        // check if postalcode is valid
+                        if (postalCodeValidator.test(user.postalCode)) {
 
-                    database.executeQuery(query, (err, rows) => {
-                        if (err) {
-                            const errorObject = {
-                                message: 'Er is iets misgegaan in de database',
-                                code: 500
+                            //check if phonenumber is valid
+                            if (phoneValidator.test(user.phoneNumber)) {
+
+                                // check if email address is valid
+                                if (emailAddressValidator.test(user.emailAddress)) {
+
+                                    const query = `INSERT INTO [DBUser] (FirstName, LastName, StreetAddress, PostalCode, City, DateOfBirth, PhoneNumber, EmailAddress, Password) VALUES (
+                                        '${user.firstName}', 
+                                        '${user.lastName}',
+                                        '${user.streetAddress}',
+                                        '${user.postalCode}',
+                                        '${user.city}',
+                                        '${user.dateOfBirth}',
+                                        '${user.phoneNumber}',
+                                        '${user.emailAddress}',
+                                        '${hash}'); 
+                                        SELECT SCOPE_IDENTITY() AS UserId`;
+
+                                    database.executeQuery(query, (err, rows) => {
+                                        if (err) {
+                                            const errorObject = {
+                                                message: 'Er is iets misgegaan in de database',
+                                                code: 500
+                                            }
+                                            next(errorObject)
+                                        }
+                                        if (rows) {
+                                            logger.trace(rows.recordset)
+                                            res.status(200).json(user)
+                                        }
+                                    })
+                                } else {
+                                    const errorObject = {
+                                        message: 'Email address missing or invalid || format example: xxxxx@gmail.com / xxxxxxx@outlook.com',
+                                        code: 406
+                                    }
+                                    logger.error(errorObject);
+                                    next(errorObject);
+                                }
+                            } else {
+                                const errorObject = {
+                                    message: 'Phonenumber missing or invalid || format example: 06-xxxxxxxx / 06xxxxxxxx / 06 xxxxxxxx',
+                                    code: 406
+                                }
+                                logger.error(errorObject);
+                                next(errorObject);
                             }
-                            next(errorObject)
+                        } else {
+                            const errorObject = {
+                                message: 'Postalcode missing or invalid || format example: xxxx PK / xxxxPK',
+                                code: 406
+                            }
+                            logger.error(errorObject);
+                            next(errorObject);
                         }
-                        if (rows) {
-                            logger.trace(rows.recordset)
-                            res.status(200).json(user)
+                    } else {
+                        const errorObject = {
+                            message: 'First name missing or invalid - Last name missing or invalid - both are invalid or missing || format example: xxx Joosten / Gerard xxxxx',
+                            code: 406
                         }
-                    })
-                } else {
-                    const error = {
-                        message: "Apartment with ID: " + id + " not found!",
-                        code: 404
+                        logger.error(errorObject);
+                        next(errorObject);
                     }
-                    logger.error(error);
-                    next(error);
-                }
+                } else {
+                        const error = {
+                            message: "Password hash is false",
+                            code: 406
+                        }
+                        logger.error(error);
+                        next(error);
+                    }
             });
         });
-
     },
 
     login: (req, res, next) => {
         logger.trace('register aangeroepen')
-        function validateEmail(email) 
-        {
+
+        function validateEmail(email) {
             var re = /^([a-zA-Z0-9_\-\.]+)@(gmail|hotmail|yahoo|live|outlook|avans)\.(com|nl|org|aus|be|de)$/;
             //var re = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/
             return re.test(email);
@@ -150,7 +154,7 @@ module.exports = {
                     })
                 } else {
                     /* password decrypten zodat het password vergeleken kan worden */
-                
+
                     bcrypt.compare(req.body.password, rows.recordset[0].Password, (err, response) => {
                         if (err) {
                             const errorObject = {
