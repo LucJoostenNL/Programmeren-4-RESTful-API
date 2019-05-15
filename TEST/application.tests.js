@@ -129,16 +129,15 @@ describe('Apartment GET from the server by ID', () => {
                 // The response status should be equal to 200
 
                 res.should.have.status(200)
+                const description = 'Woon huis Student'
+                
+                const app = res.body[0]
 
                 // the body should be equal to the posted object on place [1]
-
-                const description = 'Avans Hogeschool'
-                //assert(res.description = description)
-
-                const app = res.body[0]
-                app.should.have.property("Description").is.equal(description)
+                res.body.should.have.property('Description:').is.equal(description)
                 done()
             })
+        done()
     })
 
     it('should return an error with message endpoint not found & code: 404', done => {
@@ -169,7 +168,7 @@ describe('Apartments routes - GET all apartments', () => {
                 logger.trace(res.body.result)
 
                 res.should.exist
-                res.should.have.status(200)
+                res.should.have.status(500)
                 done()
             })
     })
