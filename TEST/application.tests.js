@@ -398,29 +398,6 @@ describe('Apartments Database', () => {
       }
     })
   })
-
-  // Testcase
-  it('Should accept an reservation', done => {
-    database.closeConnection()
-
-    const query =
-      "INSERT INTO [dbo].[Reservation](ApartmentId, StartDate, EndDate, [Status], UserId) VALUES('1', '2020-05-19', '2019-05-19', 'ACCEPTED', '1')"
-
-    database.executeQuery(query, (err, res) => {
-      if (err) {
-        logger.error(err.message)
-        done(err.message)
-      } else {
-        assert((res.ApartmentId = '1'))
-        assert((res.startDate = '2019-05-19'))
-        assert((res.endDate = '2020-05-19'))
-        assert((res.status = 'ACCEPTED'))
-        assert((res.UserId = '1'))
-
-        done()
-      }
-    })
-  })
 })
 
 describe('Authentication API GET users', () => {
@@ -498,4 +475,50 @@ describe('Reservation Database', () => {
       }
     })
   })
+
+  // Testcase
+  it('Should accept an reservation with Status = REJECTED', done => {
+    database.closeConnection()
+
+    const query =
+      "INSERT INTO [dbo].[Reservation](ApartmentId, StartDate, EndDate, [Status], UserId) VALUES('1', '2020-05-19', '2019-05-19', 'REJECTED', '1')"
+
+    database.executeQuery(query, (err, res) => {
+      if (err) {
+        logger.error(err.message)
+        done(err.message)
+      } else {
+        assert((res.ApartmentId = '1'))
+        assert((res.startDate = '2019-05-19'))
+        assert((res.endDate = '2020-05-19'))
+        assert((res.status = 'REJECTED'))
+        assert((res.UserId = '1'))
+
+        done()
+      }
+    })
+  })
+
+  // Testcase
+  it('Should not accept reservation, missing start date', done => {
+    database.closeConnection()
+
+    const query =
+      "INSERT INTO [dbo].[Reservation](ApartmentId, StartDate, EndDate, [Status], UserId) VALUES('1', 'abc', '2019-05-19', 'REJECTED', '1')"
+
+    database.executeQuery(query, (err, res) => {
+      if (err) {
+        //logger.error(err.message)
+        done()
+      } else {
+        logger.trace('het ging goed, terwijl het fout moest gaan.')
+      }
+    })
+  })
+
+  // Update(put) test succes en not accept met rare status
+  // Update(put) not accept met rare status
+
+  // delete test succes
+  // delete not accept met onbekende userId
 })
