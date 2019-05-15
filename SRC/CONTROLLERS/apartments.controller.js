@@ -1,11 +1,14 @@
+// de vereiste bestanden en/of modules toekennen aan een constante
 const logger = require('../CONFIG/app.config').logger
 const database = require('../DATALAYER/mssql.dao')
 
+// exporteren van deze module
 module.exports = {
     getAppartments: (req, res, next) => {
         logger.info('GET /api/apartments aangeroepen!')
         logger.trace('Appartement info is opgevraagd')
 
+        // select query met joins om per appartement de verhuurder te zien en het aantal reserveringen op dat appartement
         const query = `SELECT (
             SELECT *,
                 (SELECT * FROM DBUser WHERE DBUser.UserId = Apartment.UserId FOR JSON PATH) AS Landlord,
@@ -15,13 +18,15 @@ module.exports = {
 
         logger.trace(query)
 
+        // executeren van de query
         database.executeQuery(query, (err, rows) => {
             // verwerk error of result
 
             const resultArray = rows.recordset
             const resultObject = resultArray[0]
-            const apartment = req.body;
 
+            // als er errors optreden worden deze eerst afgehandeld en wordt het op een correcte manier afgehandeld
+            // het geeft een bericht terug met HTTP-status code 500
             if (err) {
                 const errorObject = {
                     message: 'Er ging iets mis in de database.',
@@ -29,6 +34,8 @@ module.exports = {
                 }
                 next(errorObject)
             }
+            // als er geen errors zijn, volgt de if(). hier wordt gekeken of er resultaat is op de query, is die er dan volgt
+            // er een HTTP-status code van 200. als return waarde wordt het resultaat in JSON teruggegeven
             if (rows) {
                 //logger.warn(resultObject.Result)
                 res.status(200).json(JSON.parse(resultObject.Result))

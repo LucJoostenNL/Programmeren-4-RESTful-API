@@ -131,6 +131,8 @@ describe('Apartment GET from the server by ID', () => {
                 res.should.have.status(200)
                 const description = 'Woon huis Student'
                 
+                const app = res.body[0]
+
                 // the body should be equal to the posted object on place [1]
                 res.body.should.have.property('Description:').is.equal(description)
                 done()

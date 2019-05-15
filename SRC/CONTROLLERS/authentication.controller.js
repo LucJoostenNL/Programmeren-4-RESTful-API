@@ -121,12 +121,6 @@ module.exports = {
     login: (req, res, next) => {
         logger.trace('register aangeroepen')
 
-        function validateEmail(email) {
-            var re = /^([a-zA-Z0-9_\-\.]+)@(gmail|hotmail|yahoo|live|outlook|avans)\.(com|nl|org|aus|be|de)$/;
-            //var re = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/
-            return re.test(email);
-        }
-
         logger.warn(validateEmail(req.body.emailAddress))
 
         // req.body uitlezen, geeft user data

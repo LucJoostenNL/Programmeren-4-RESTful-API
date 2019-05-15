@@ -1,4 +1,5 @@
 module.exports = {
+  // aparte configuratie voor Logger zodat dit maar 1 keer geïnitialiseert hoeft te worden
   logger: require('tracer').colorConsole({
     format: [
       '{{timestamp}} <{{title}}> {{message}} (in {{file}}:{{line}})', //default format
@@ -13,12 +14,16 @@ module.exports = {
     level: process.env.LOG_LEVEL || 'trace'
   }),
 
+  // database configuratie om met de juiste gegevens verbinding te maken met de externe database
+  // process.env zijn de ENvironment Variables oftewel; de omgevings variabelen die op je apparaat zijn ingesteld
   databaseConfig: {
     user: process.env.DB_USERNAME || 'progr4',
     password: process.env.DB_PASSWORD || 'password123',
     server: process.env.DB_HOSTNAME || 'aei-sql.avans.nl',
     database: process.env.DB_DATABASENAME || 'Prog4-Eindopdracht1',
+    // poort nummer 
     port: 1443,
+    // driver voor het creeeren van de verbinding
     driver: 'msnodesql',
     connectionTimeout: 1500,
     options: {
@@ -27,6 +32,7 @@ module.exports = {
     }
   },
 
+  // secretkey voor JWT authenticatie
   secretKey: process.env.SECRET_KEY || 'secret'
 }
 
