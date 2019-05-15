@@ -132,10 +132,11 @@ describe('Apartment GET from the server by ID', () => {
 
                 // the body should be equal to the posted object on place [1]
 
-                assert(res.description = description)
+                const description = 'Avans Hogeschool'
+                //assert(res.description = description)
 
-                res.body.should.have.property('Description:').that.is.a('string')
-
+                const app = res.body[0]
+                app.should.have.property("Description").is.equal(description)
                 done()
             })
     })
