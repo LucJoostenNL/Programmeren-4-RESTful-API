@@ -105,25 +105,29 @@ module.exports = {
       req.user.UserId
     logger.trace(query)
 
-    logger.trace(
-      'Wijzigen van status appartement, Aleen  eigenaar van het appartement kan een reserveringsstatus wijzigen'
-    )
-    database.executeQuery(query, (err, rows) => {
-      // verwerk error of result
-      if (err) {
-        const errorObject = {
-          message: 'Er ging iets mis in de database.',
-          code: 500
-        }
-        next(errorObject)
-      }
-      if (rows) {
-        res.status(200).json({
-          result: rows.recordset
-        })
-        logger.debug(rows.recordset)
-      }
-    })
+    logger.trace('Wijzigen van status appartement, Aleen  eigenaar van het appartement kan een reserveringsstatus wijzigen')
+
+    const startDate = new Date(req.body.startDate);
+    const endDate = new Date(req.body.endDate);
+         
+        if(startDate < endDate) {
+          database.executeQuery(query, (err, rows) => {
+            // verwerk error of result
+            if (err) {
+              const errorObject = {
+                message: 'Er ging iets mis in de database.',
+                code: 500
+              }
+              next(errorObject)
+            }
+            if (rows) {
+              res.status(200).json({
+                result: rows.recordset
+              })
+              logger.debug(rows.recordset)
+            }
+          })
+        } else { res.status(400).json({Result: 'De datum die is ingegeven is niet correct, datum kan niet eindigen voor de begin datum'})}
   },
 
   deleteReservationByID: (req, res, next) => {
