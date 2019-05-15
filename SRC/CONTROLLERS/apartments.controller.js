@@ -194,7 +194,7 @@ module.exports = {
 
       if (rows.rowsAffected != 0) {
         res.status(200).json({
-          result: rows,
+          result: 'Apartment was deleted!',
           code: 200
         })
       } else {

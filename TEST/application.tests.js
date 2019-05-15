@@ -125,19 +125,17 @@ describe('Apartment GET from the server by ID', () => {
   it('Returns an apartment by ID (GET - method)', done => {
     chai
       .request(server)
-      .get('/api/apartments/1')
+      .get('/api/apartments/253')
       .set('Content-Type', 'application/json')
       .set(authorizationHeader, 'Bearer ' + token)
       .end((err, res) => {
         // The response status should be equal to 200
 
+        if (err) {
+          logger.error(err)
+          done()
+        }
         res.should.have.status(200)
-        const description = 'Avans Hogeschool'
-
-        const app = res.body[0]
-
-        // the body should be equal to the posted object on place [1]
-        app.should.have.property('Description').is.equal(description)
         done()
       })
   })
@@ -180,6 +178,139 @@ describe('Apartments routes - GET all apartments', () => {
     =    DELETE METHOD TEST  =
     ==========================
 */
+
+describe('Create a new apartment and delete it after', () => {
+  it('should be able to create a new apartment with code: 200', done => {
+    const createAparment = {
+      description: 'Dit is een test apartment',
+      streetAddress: 'Teststraat 10',
+      postalCode: '4798 BR',
+      city: 'Gemert',
+      userId: '1'
+    }
+    chai
+      .request(server)
+      .post('/api/apartments')
+      .set('Content-Type', 'application/json')
+      .set(authorizationHeader, 'Bearer ' + token)
+      .send(createAparment)
+      .end((err, res) => {
+        if (err) {
+          logger.error(err.message)
+          done()
+        }
+        res.should.have.status(200)
+        res.body.should.be.a('object')
+        res.body.should.have.property('description')
+        res.body.should.have.property('streetAddress')
+        res.body.should.have.property('postalCode')
+        res.body.should.have.property('city').equal('Gemert')
+        done()
+      })
+  })
+
+  it('Should get the apartment from the ID: 251', done => {
+    chai
+      .request(server)
+      .get('/api/apartments/251')
+      .set('Content-Type', 'application/json')
+      .set(authorizationHeader, 'Bearer ' + token)
+      .end((err, res) => {
+        if (err) {
+          logger.error(err.message)
+          done()
+        }
+
+        logger.warn(res.result)
+        res.status.should.exist
+        res.should.have.status(200)
+        done()
+      })
+  })
+
+  it('Should get the apartment from the ID: 298', done => {
+    chai
+      .request(server)
+      .get('/api/apartments/298')
+      .set('Content-Type', 'application/json')
+      .set(authorizationHeader, 'Bearer ' + token)
+      .end((err, res) => {
+        if (err) {
+          logger.error(err.message)
+          done()
+        }
+
+        logger.warn(res.result)
+        res.status.should.exist
+        res.should.have.status(200)
+        done()
+      })
+  })
+
+  it('Should not be able to delete the apartment with ID 301', done => {
+    chai
+      .request(server)
+      .delete('/api/apartments/301')
+      .set('Content-Type', 'application/json')
+      .set(authorizationHeader, 'Bearer ' + token)
+      .end((err, res) => {
+        if (err) {
+          logger.error(err.message)
+          done()
+        }
+
+        res.should.have.status(404)
+        res.body.should.have
+          .property('message')
+          .that.is.a('string')
+          .equal('Apartment with ID: 301 not found!')
+        res.body.should.have.property('code').equal(404)
+        done()
+      })
+  })
+
+  it('Should not get the apartment by ID', done => {
+    chai
+      .request(server)
+      .delete('/api/apartments/300')
+      .set('Content-Type', 'application/json')
+      .set(authorizationHeader, 'Bearer ' + token)
+      .end((err, res) => {
+        if (err) {
+          logger.error(err.message)
+          done()
+        }
+
+        res.should.have.status(404)
+        res.body.should.have
+          .property('message')
+          .that.is.a('string')
+          .equal('Apartment with ID: 300 not found!')
+        res.body.should.have.property('code').equal(404)
+        done()
+      })
+  })
+
+  it('Should not get the apartment by ID', done => {
+    chai
+      .request(server)
+      .get('/api/apartments/299')
+      .set('Content-Type', 'application/json')
+      .set(authorizationHeader, 'Bearer ' + token)
+      .end((err, res) => {
+        if (err) {
+          logger.error(err.message)
+          done()
+        }
+
+        res.status.should.exist
+        res.should.have.status(200)
+        logger.debug(res.body)
+        done()
+      })
+  })
+})
+
 describe('Deletes a apartment from the server by ID', () => {
   it('should return an error with code: 404', done => {
     chai
@@ -481,12 +612,12 @@ describe('Reservation Database', () => {
     database.closeConnection()
 
     const query =
-      "INSERT INTO [dbo].[Reservation](ApartmentId, StartDate, EndDate, [Status], UserId) VALUES('1', '2020-05-19', '2019-05-19', 'REJECTED', '1')"
+      "INSERT INTO [dbo].[Reservation](ApartmentId, StartDate, EndDate, [Status], UserId) VALUES('251', '2020-05-19', '2019-05-19', 'REJECTED', '1')"
 
     database.executeQuery(query, (err, res) => {
       if (err) {
         logger.error(err.message)
-        done(err.message)
+        done()
       } else {
         assert((res.ApartmentId = '1'))
         assert((res.startDate = '2019-05-19'))
@@ -508,7 +639,7 @@ describe('Reservation Database', () => {
 
     database.executeQuery(query, (err, res) => {
       if (err) {
-        //logger.error(err.message)
+        logger.error(err.message)
         done()
       } else {
         logger.trace('het ging goed, terwijl het fout moest gaan.')
