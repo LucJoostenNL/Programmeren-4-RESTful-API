@@ -58,7 +58,7 @@ describe('User API POST to register a new user', () => {
 
         database.executeQuery(insertQuery, (err, res) => {
             if(err) {
-                logger.error(err)
+                //logger.error(err)
                 done();
             }
             if (res) {
@@ -396,9 +396,33 @@ describe('Apartments Database', () => {
             }
         })
     })
+
+    // Testcase
+    it('Should accept an reservation', done => {
+        database.closeConnection()
+
+        const query = "INSERT INTO [dbo].[Reservation](ApartmentId, StartDate, EndDate, [Status], UserId) VALUES('1', '2020-05-19', '2019-05-19', 'ACCEPTED', '1')"
+
+        database.executeQuery(query, (err, res) => 
+        {
+            if (err) 
+            {
+                logger.error(err.message)
+                done(err.message)
+            } 
+            else 
+            {    
+                assert(res.ApartmentId  = '1')
+                assert(res.startDate    = '2019-05-19')
+                assert(res.endDate      = '2020-05-19')
+                assert(res.status       = 'ACCEPTED')
+                assert(res.UserId       = '1')
+
+                done()
+            }
+        })
+    })
 })
-
-
 
 describe('Authentication API GET users', () => {
     it('should return all users from the database', done => {

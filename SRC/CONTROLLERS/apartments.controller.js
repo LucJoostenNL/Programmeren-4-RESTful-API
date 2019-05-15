@@ -79,8 +79,6 @@ module.exports = {
             FROM Apartment  WHERE Apartment.ApartmentId = ${id} FOR JSON PATH
             ) AS Result`
 
-        logger.trace(query)
-
         database.executeQuery(query, (err, rows) => {
             // verwerk error of result
 
