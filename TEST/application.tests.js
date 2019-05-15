@@ -52,7 +52,7 @@ describe('User API POST to register a new user', () => {
     it('should return response status 200 with inserted user', done => {
         database.closeConnection();
         // wat verwachten we dat waar is?
-        const insertQuery = '`INSERT INTO [DBUser] (FirstName, LastName, StreetAddress, PostalCode, City, DateOfBirth, PhoneNumber, EmailAddress, Password)' +
+        const insertQuery = "INSERT INTO [DBUser] (FirstName, LastName, StreetAddress, PostalCode, City, DateOfBirth, PhoneNumber, EmailAddress, Password)" +
             "VALUES ('Luc', 'Joosten', 'Buys ballotstraat 17', '5751 BH', 'Vlierden', '1999-12-14', '0636542018', 'lusdc@gmail.com', 'brokko')"
         // wat verwachten we dat waar is?
 
