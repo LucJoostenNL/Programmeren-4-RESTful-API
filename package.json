@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "node node_modules/mocha/bin/_mocha ./TEST/reservation.mocha.test.js --reporter spec --exit"
+    "test": "node node_modules/mocha/bin/_mocha ./TEST/*application.tests.js --reporter spec --exit"
   },
   "repository": {
     "type": "git",
