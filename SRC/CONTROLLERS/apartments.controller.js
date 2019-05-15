@@ -16,8 +16,6 @@ module.exports = {
             FROM Apartment FOR JSON PATH 
             ) AS Result`
 
-        logger.trace(query)
-
         // executeren van de query
         database.executeQuery(query, (err, rows) => {
             // verwerk error of result
@@ -37,7 +35,6 @@ module.exports = {
             // als er geen errors zijn, volgt de if(). hier wordt gekeken of er resultaat is op de query, is die er dan volgt
             // er een HTTP-status code van 200. als return waarde wordt het resultaat in JSON teruggegeven
             if (rows) {
-                //logger.warn(resultObject.Result)
                 res.status(200).json(JSON.parse(resultObject.Result))
             }
         });
