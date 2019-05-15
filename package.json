@@ -12,6 +12,12 @@
     "type": "git",
     "url": "git+https://gitlab.com/LucJoosten/appartmentrentalnodejs.git"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged",
+      "pre-push": "npm test"
+    }
+  },
   "keywords": [
     "apartment",
     "rental",
@@ -32,6 +38,7 @@
     "jsonwebtoken": "^8.5.1",
     "mssql": "^5.1.0",
     "prettier": "^1.17.0",
+    "pretty-quick": "^1.10.0",
     "tracer": "^0.9.8"
   },
   "devDependencies": {
