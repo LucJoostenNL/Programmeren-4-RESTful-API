@@ -1,8 +1,3 @@
-Stefan:
-dubbel routing uitleg door stijn in WA groep.
-
-DELETE      -   /api/appartments/:id/reservations/:id
-
 luc:
 RETURN SUCCES AFTER LOG IN
 API TESTS
@@ -11,3 +6,9 @@ samen:
 Prepared statements
 invullen enviroment details voor DB connection (Heroku/gitlab)?
 Comments, Comments en nog is comments!
+
+Tests:
+all reservation methods - Stefan
+Token validation
+Login
+Register

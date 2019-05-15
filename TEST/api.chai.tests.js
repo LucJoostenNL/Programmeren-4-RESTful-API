@@ -208,3 +208,41 @@ describe('Deletes a apartment from the server by ID', () => {
       })
   })
 })
+
+/*  ====================================================       
+    =   RESERVATION TESTS    =                         =
+    ====================================================
+*/
+
+/*  ==========================       
+    =    POST METHOD TEST    =
+    ==========================
+*/
+describe('Add a reservation based on reservationID', () => {
+  it('should return response status 200', done => {
+    chai
+      .request(server)
+      .post('/api/apartments/1/reservations')
+      .set('Content-Type', 'application/json')
+      .send({
+        id: 3,
+        startDate : '2019-05-14',
+        endDate : '2019-05-19',
+        status : 'ACCEPTED'
+      })
+      .end((err, res, body) => {
+        if (res) {
+          res.should.have.status(200)
+
+          res.body.should.be.an('object')
+          res.body.should.have.property('id').that.is.a('number')
+          res.body.should.have.property('startDate').that.is.a('string')
+          res.body.should.have.property('endDate').that.is.a('string')
+          res.body.should.have.property('status').that.is.a('string')
+          res.body.should.not.have.property('UserId')
+
+          done()
+        }
+      })
+  })
+})
