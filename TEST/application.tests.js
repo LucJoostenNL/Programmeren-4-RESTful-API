@@ -153,7 +153,7 @@ describe('Apartment GET from the server by ID', () => {
 })
 
 describe('Apartments routes - GET all apartments', () => {
-    it('should return status code 500', done => {
+    it('should return status code 200', done => {
         chai
             .request(server)
             .get('/api/apartments/')
@@ -167,7 +167,7 @@ describe('Apartments routes - GET all apartments', () => {
                 logger.trace(res.body.result)
 
                 res.should.exist
-                res.should.have.status(500)
+                res.should.have.status(200)
                 done()
             })
     })
