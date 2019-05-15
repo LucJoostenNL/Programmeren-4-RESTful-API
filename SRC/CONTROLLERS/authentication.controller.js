@@ -20,7 +20,7 @@ module.exports = {
         logger.trace('register user - POST aangeroepen!')
 
         const user = req.body
-        logger.info(user)
+        //logger.info(user)
 
         bcrypt.genSalt(saltRounds, (err, salt) => {
             bcrypt.hash(user.password, salt, (err, hash) => {
