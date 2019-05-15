@@ -129,9 +129,10 @@ describe('Apartment GET from the server by ID', () => {
                 // The response status should be equal to 200
 
                 res.should.have.status(200)
-
+                const description = 'Woon huis Student'
+                
                 // the body should be equal to the posted object on place [1]
-                res.body.should.have.property('Description:').that.is.a('string')
+                res.body.should.have.property('Description:').is.equal(description)
                 done()
             })
         done()
