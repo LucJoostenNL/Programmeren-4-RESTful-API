@@ -138,7 +138,7 @@ module.exports = {
 
     // check if postalcode is valid
     if (postalCodeValidator.test(apartment.postalCode)) {
-      const query = `UPDATE Apartment SET Description = '${req.body.description}', 
+      const query = `UPDATE Apartment SET Description = '${req.body.description}',
           StreetAddress = '${req.body.streetAddress}', PostalCode = '${req.body.postalCode}',
           City = '${req.body.city}', UserId = ${req.body.userId} WHERE ApartmentId = ${id}`
 
@@ -180,9 +180,7 @@ module.exports = {
   deleteApartmentByID: (req, res, next) => {
     logger.info('DELETE /api/apartments/:id aangeroepen!')
     const id = req.params.id
-    const userID = req.body.userId
-
-    const query = `DELETE FROM Apartment WHERE ApartmentId = ${id} AND UserId = ${userID}`
+    const query = `DELETE FROM Apartment WHERE ApartmentId = ${id}`
     database.executeQuery(query, (err, rows) => {
       // verwerk error of result
       if (err) {
@@ -192,12 +190,14 @@ module.exports = {
         }
         next(errorObject)
       }
-      if (rows.recordset.length[0] != 0) {
+      logger.warn(rows)
+
+      if (rows.rowsAffected != 0) {
         res.status(200).json({
           result: rows,
           code: 200
         })
-      } else if (rows.recordset[0].length === 0) {
+      } else {
         const error = {
           message: 'Apartment with ID: ' + id + ' not found!',
           code: 404
