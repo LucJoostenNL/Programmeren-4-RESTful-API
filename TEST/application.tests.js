@@ -42,13 +42,220 @@ before(() => {
 })
 
 beforeEach(() => {
-  //logger.debug('- beforeEach')
+  logger.debug('- beforeEach')
 })
 
-/*  ==========================       
-    =    POST METHOD TEST    =
-    ==========================
-*/
+describe('Apartment routes - GET apartment by ID', () => {
+  it('should show the apartment', done => {
+    chai
+      .request(server)
+      .get('/api/apartments/1231')
+      .set('authorization', 'Bearer ' + token)
+      .end((err, res) => {
+        res.should.exist
+        res.should.have.status(200)
+        //res.body.should.be.a('array')
+
+        const app = res.body[0]
+        app.should.be.an('object')
+        app.should.have.property('ApartmentId').that.is.a('number')
+        app.should.have.property('Landlord').that.is.a('array')
+        app.should.not.have.property('message')
+
+        done()
+      })
+  })
+})
+
+describe('JWT tests with register, login, getAllUsers and getUserById', () => {
+  it('Should insert a new user in the database', done => {
+    const user = {
+      firstName: 'hahahah',
+      lastName: 'joosten',
+      streetAddress: 'Eurosdfsdfpalaan 12a',
+      postalCode: '4567 OK',
+      city: 'Vlierden',
+      dateOfBirth: '1999-12-14',
+      phoneNumber: '0636542018',
+      emailAddress: 'tssdfdddft@gmail.com',
+      password: 'tsdsfddft'
+    }
+
+    chai
+      .request(server)
+      .post('/api/register')
+      .set('Content-Type', 'application/json')
+      .send(user)
+      .end((err, res) => {
+        if (err) {
+          logger.error(err.message)
+          done()
+        }
+        res.should.exist
+        res.should.have.status(500)
+
+        const app = res.body
+        app.should.be.an('object')
+        res.body.should.have.property('code').equal(500)
+        done()
+      })
+  })
+
+  it('Should throw an error when trying to register a new user without a password', done => {
+    const user = {
+      firstName: 'hahahah',
+      lastName: 'joosten',
+      streetAddress: 'Eurosdfsdfpalaan 12a',
+      postalCode: '4567 OK',
+      city: 'Vlierden',
+      dateOfBirth: '1999-12-14',
+      phoneNumber: '06 36542018',
+      emailAddress: 'ssssdddsss@gmail.com',
+      password: 1
+    }
+
+    chai
+      .request(server)
+      .post('/api/register')
+      .set('Content-Type', 'application/json')
+      .send(user)
+      .end((err, res) => {
+        if (err) {
+          logger.error(err.message)
+          done()
+        }
+        res.should.exist
+        res.should.have.status(500)
+
+        res.body.should.have
+          .property('message')
+          .that.is.a('string')
+          .equal('Er ging iets mis met het hashen van het wachtwoord')
+        res.body.should.have.property('code').equal(500)
+        done()
+      })
+  })
+
+  it('Should get a user in the database and log him/her in', done => {
+    const login = {
+      emailAddress: 'tsdft@gmail.com',
+      password: 'tsdft'
+    }
+    chai
+      .request(server)
+      .get('/api/login/')
+      .set('Content-Type', 'application/json')
+      .send(login)
+      .end((err, res) => {
+        if (err) {
+          logger.error(err.message)
+          done()
+        }
+
+        res.should.exist
+        res.should.have.status(200)
+        done()
+      })
+  })
+
+  it('Should throw an error when logging in with the wrong email', done => {
+    const login = {
+      emailAddress: 'tsdsfft@gmail.com',
+      password: 'tsdft'
+    }
+    chai
+      .request(server)
+      .get('/api/login/')
+      .set('Content-Type', 'application/json')
+      .send(login)
+      .end((err, res) => {
+        if (err) {
+          logger.error(err.message)
+          done()
+        }
+
+        res.should.exist
+        res.should.have.status(401)
+        res.body.should.have.property('result').equal('No results!')
+        res.body.should.have.property('code').equal(401)
+        done()
+      })
+  })
+
+  it('Should return all users from the database', done => {
+    chai
+      .request(server)
+      .get('/api/users')
+      .set('Content-Type', 'application/json')
+      .end((err, res) => {
+        if (err) {
+          logger.error(err.message)
+          done()
+        }
+
+        res.should.exist
+        res.should.have.status(200)
+        done()
+      })
+  })
+
+  it('Should throw an error when the route is not correct', done => {
+    chai
+      .request(server)
+      .get('/api/userss/')
+      .set('Content-Type', 'application/json')
+      .end((err, res) => {
+        if (err) {
+          logger.error(err.message)
+          done()
+        }
+
+        res.should.exist
+        res.should.have.status(404)
+        res.body.should.have.property('message').equal('Endpoint does not exist!')
+        res.body.should.have.property('code').equal(404)
+        done()
+      })
+  })
+
+  it('Should return an user by given ID', done => {
+    chai
+      .request(server)
+      .get('/api/users/1')
+      .set('Content-Type', 'application/json')
+      .end((err, res) => {
+        if (err) {
+          logger.error(err.message)
+          done()
+        }
+
+        res.should.exist
+        res.should.have.status(200)
+        res.body.should.be.an('object')
+        // res.body.should.have.property('Firstname').equal('Pieter')
+        // res.body.should.have.property('City').that.is.a('string').equal('Breda')
+        done()
+      })
+  })
+
+  it('Should throw an error when the user was not found with the given ID', done => {
+    chai
+      .request(server)
+      .get('/api/users/8')
+      .set('Content-Type', 'application/json')
+      .end((err, res) => {
+        if (err) {
+          logger.error(err.message)
+          done()
+        }
+
+        res.should.exist
+        res.should.have.status(200)
+        res.body.should.have.property('result')
+        done()
+      })
+  })
+})
 
 describe('User API POST to register a new user', () => {
   it('should return response status 200 with inserted user', done => {
@@ -116,11 +323,6 @@ describe('User API POST to register a new user', () => {
   })
 })
 
-/*  ==========================       
-    =    GET METHOD TEST     =
-    ==========================
-*/
-
 describe('Apartment GET from the server by ID', () => {
   it('Returns an apartment by ID (GET - method)', done => {
     chai
@@ -173,11 +375,6 @@ describe('Apartments routes - GET all apartments', () => {
       })
   })
 })
-
-/*  ==========================       
-    =    DELETE METHOD TEST  =
-    ==========================
-*/
 
 describe('Create a new apartment and delete it after', () => {
   it('should be able to create a new apartment with code: 200', done => {
@@ -269,7 +466,7 @@ describe('Create a new apartment and delete it after', () => {
       })
   })
 
-  it('Should not get the apartment by ID', done => {
+  it('Should not get the apartment by ID: 404', done => {
     chai
       .request(server)
       .delete('/api/apartments/300')
@@ -291,7 +488,7 @@ describe('Create a new apartment and delete it after', () => {
       })
   })
 
-  it('Should not get the apartment by ID', done => {
+  it('Should get the apartment by ID: 299', done => {
     chai
       .request(server)
       .get('/api/apartments/299')
@@ -559,6 +756,46 @@ describe('Authentication API GET users', () => {
 
 describe('Reservation Database', () => {
   // Testcase
+  it('Should accept an reservation with Status = REJECTED', done => {
+    database.closeConnection()
+
+    const query =
+      "INSERT INTO [dbo].[Reservation](ApartmentId, StartDate, EndDate, [Status], UserId) VALUES('251', '2020-05-19', '2019-05-19', 'REJECTED', '1')"
+
+    database.executeQuery(query, (err, res) => {
+      if (err) {
+        //logger.error(err.message)
+        done()
+      } else {
+        assert((res.ApartmentId = '1'))
+        assert((res.startDate = '2019-05-19'))
+        assert((res.endDate = '2020-05-19'))
+        assert((res.status = 'REJECTED'))
+        assert((res.UserId = '1'))
+
+        done()
+      }
+    })
+  })
+
+  // Testcase
+  it('Should not accept reservation, missing start date', done => {
+    database.closeConnection()
+
+    const query =
+      "INSERT INTO [dbo].[Reservation](ApartmentId, StartDate, EndDate, [Status], UserId) VALUES('1', 'abc', '2019-05-19', 'REJECTED', '1')"
+
+    database.executeQuery(query, (err, res) => {
+      if (err) {
+        //logger.error(err.message)
+        done()
+      } else {
+        logger.trace('het ging goed, terwijl het fout moest gaan.')
+      }
+    })
+  })
+
+  // Testcase
   it('should accept the properties of an reservation', done => {
     database.closeConnection()
     // wat verwachten we dat waar is?
@@ -593,7 +830,7 @@ describe('Reservation Database', () => {
 
     database.executeQuery(query, (err, res) => {
       if (err) {
-        logger.error(err.message)
+        //logger.error(err.message)
         done(err.message)
       } else {
         assert(res.ReservationId != '1')
@@ -606,50 +843,4 @@ describe('Reservation Database', () => {
       }
     })
   })
-
-  // Testcase
-  it('Should accept an reservation with Status = REJECTED', done => {
-    database.closeConnection()
-
-    const query =
-      "INSERT INTO [dbo].[Reservation](ApartmentId, StartDate, EndDate, [Status], UserId) VALUES('251', '2020-05-19', '2019-05-19', 'REJECTED', '1')"
-
-    database.executeQuery(query, (err, res) => {
-      if (err) {
-        logger.error(err.message)
-        done()
-      } else {
-        assert((res.ApartmentId = '1'))
-        assert((res.startDate = '2019-05-19'))
-        assert((res.endDate = '2020-05-19'))
-        assert((res.status = 'REJECTED'))
-        assert((res.UserId = '1'))
-
-        done()
-      }
-    })
-  })
-
-  // Testcase
-  it('Should not accept reservation, missing start date', done => {
-    database.closeConnection()
-
-    const query =
-      "INSERT INTO [dbo].[Reservation](ApartmentId, StartDate, EndDate, [Status], UserId) VALUES('1', 'abc', '2019-05-19', 'REJECTED', '1')"
-
-    database.executeQuery(query, (err, res) => {
-      if (err) {
-        logger.error(err.message)
-        done()
-      } else {
-        logger.trace('het ging goed, terwijl het fout moest gaan.')
-      }
-    })
-  })
-
-  // Update(put) test succes en not accept met rare status
-  // Update(put) not accept met rare status
-
-  // delete test succes
-  // delete not accept met onbekende userId
 })

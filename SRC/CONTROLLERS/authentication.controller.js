@@ -1,7 +1,6 @@
 const logger = require('../CONFIG/app.config').logger
 const database = require('../DATALAYER/mssql.dao')
 const jwt = require('jsonwebtoken')
-const secretkey = require('../CONFIG/app.config').secretKey
 
 // validators using RegularExpression
 const phoneValidator = new RegExp('^06(| |-)[0-9]{8}$')
@@ -128,7 +127,7 @@ module.exports = {
   login: (req, res, next) => {
     logger.trace('register aangeroepen')
 
-    logger.warn(validateEmail(req.body.emailAddress))
+    logger.warn(req.body.emailAddress)
 
     // req.body uitlezen, geeft user data
     const user = req.body
