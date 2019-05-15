@@ -18,7 +18,9 @@ module.exports = {
 
     const startDate = new Date(req.body.startDate);
     const endDate = new Date(req.body.endDate);
+    const currentDate = new Date();
 
+    if(startDate >= currentDate) {
     if (startDate < endDate) {
       database.executeQuery(query, (err, rows) => {
         // verwerk error of result
@@ -38,9 +40,16 @@ module.exports = {
       })
     } else {
       res.status(400).json({
-        Result: 'De datum die is ingegeven is niet correct, datum kan niet eindigen voor de begin datum'
+        Result: 'De datum die is ingegeven is niet correct, datum kan niet eindigen voor de begin datum',
+        code: 400
       })
     }
+  } else {
+    res.status(400).json({
+      Result: 'De startdatum is niet valide. Startdatum moet gelijk of groter (ouder) zijn dan de huidige datum',
+      code: 400
+    })
+  }
   },
 
   getReservationByApartmentID: (req, res, next) => {
