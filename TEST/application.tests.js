@@ -19,7 +19,7 @@ let token
 // Deze functie wordt voorafgaand aan alle tests 1 x uitgevoerd.
 //
 before(() => {
-    logger.trace('- before')
+    //logger.trace('- before')
     // We hebben een token nodig om een ingelogde gebruiker te simuleren.
     // Hier kiezen we ervoor om een token voor UserId 1 te gebruiken.
     const payload = {
@@ -40,7 +40,7 @@ before(() => {
 })
 
 beforeEach(() => {
-    logger.debug('- beforeEach')
+    //logger.debug('- beforeEach')
 })
 
 /*  ==========================       
@@ -130,10 +130,12 @@ describe('Apartment GET from the server by ID', () => {
 
                 res.should.have.status(200)
 
-                const description = 'Woon huis Student'
-
                 // the body should be equal to the posted object on place [1]
+
                 assert(res.description = description)
+
+                res.body.should.have.property('Description:').that.is.a('string')
+
                 done()
             })
     })
