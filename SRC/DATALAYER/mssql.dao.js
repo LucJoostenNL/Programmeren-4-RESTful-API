@@ -23,7 +23,7 @@ module.exports = {
             sql.close()
           }
           if (result) {
-            logger.info(result)
+            //logger.info(result)
             // result.recordset.forEach(item => console.log(item.number))
             callback(null, result)
             sql.close()
