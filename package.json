@@ -8,10 +8,6 @@
     "dev": "nodemon index.js",
     "test": "node node_modules/mocha/bin/_mocha ./TEST/*application.tests.js --reporter spec --exit"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://gitlab.com/luc_joosten/programmeren-4-eindopdracht.git"
-  },
   "husky": {
     "hooks": {
       "pre-commit": "pretty-quick --staged"
