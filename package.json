@@ -14,8 +14,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged",
-      "pre-push": "npm test"
+      "pre-commit": "pretty-quick --staged"
     }
   },
   "keywords": [
