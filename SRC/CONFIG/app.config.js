@@ -8,7 +8,7 @@ module.exports = {
       }
     ],
     dateformat: 'HH:MM:ss.L',
-    preprocess: function (data) {
+    preprocess: function(data) {
       data.title = data.title.toUpperCase()
     },
     level: process.env.LOG_LEVEL || 'trace'
@@ -17,11 +17,11 @@ module.exports = {
   // database configuratie om met de juiste gegevens verbinding te maken met de externe database
   // process.env zijn de ENvironment Variables oftewel; de omgevings variabelen die op je apparaat zijn ingesteld
   databaseConfig: {
-    user: process.env.DB_USERNAME || 'progr4',
-    password: process.env.DB_PASSWORD || 'password123',
-    server: process.env.DB_HOSTNAME || 'aei-sql.avans.nl',
-    database: process.env.DB_DATABASENAME || 'Prog4-Eindopdracht1',
-    // poort nummer 
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    server: process.env.DB_HOSTNAME,
+    database: process.env.DB_DATABASENAME,
+    // poort nummer
     port: 1443,
     // driver voor het creeeren van de verbinding
     driver: 'msnodesql',
@@ -35,4 +35,3 @@ module.exports = {
   // secretkey voor JWT authenticatie
   secretKey: process.env.SECRET_KEY || 'secret'
 }
-

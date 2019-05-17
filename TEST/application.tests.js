@@ -238,7 +238,7 @@ describe('JWT tests with register, login, getAllUsers and getUserById', () => {
       })
   })
 
-  it('Should throw an error when the user was not found with the given ID', done => {
+  it('Should throw an empty result when the user was not found with the given ID', done => {
     chai
       .request(server)
       .get('/api/users/8')

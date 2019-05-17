@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/LucJoosten/appartmentrentalnodejs.git"
+    "url": "git+https://gitlab.com/luc_joosten/programmeren-4-eindopdracht.git"
   },
   "husky": {
     "hooks": {
@@ -25,12 +25,8 @@
     "node",
     "project"
   ],
-  "author": "Luc Joosten & Stefan Ilmer",
+  "author": "Luc Joosten",
   "license": "ISC",
-  "bugs": {
-    "url": "https://gitlab.com/LucJoosten/appartmentrentalnodejs/issues"
-  },
-  "homepage": "https://gitlab.com/LucJoosten/appartmentrentalnodejs#readme",
   "dependencies": {
     "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
