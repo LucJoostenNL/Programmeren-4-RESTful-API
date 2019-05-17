@@ -3,13 +3,19 @@ const database = require('../DATALAYER/mssql.dao')
 const jwt = require('jsonwebtoken')
 
 // validators using RegularExpression
+// checken of de string begint met 06, niks/een spatie/streepje vervolgd en of de 8 op een volgende getallen tussen de 0 en de 9 zijn
 const phoneValidator = new RegExp('^06(| |-)[0-9]{8}$')
+
+// checken of de voornaam en achternaam de letters tussen a t/m z bevatten ook in hoofdletters, en checken of er een spatie tussen zit
 const nameValidator = new RegExp('^[a-zA-Z][a-z A-Z]*$')
+
+// checken of de string eerst 4 cijfers bevat tussen de 0 en 9 en wordt vervolgd (met spatie) door 2 letters tussen de letter a en z
+// in zowel kleine letters als hoofdletters
 const postalCodeValidator = new RegExp('^([0-9]{4}[ ]+[a-zA-Z]{2})$')
-//const emailAddressValidator = /^([a-zA-Z0-9_\-\.]+)@(gmail|hotmail|yahoo|live|outlook|avans)\.(com|nl|org|aus|be|de)$/;
-const emailAddressValidator = new RegExp(
-  /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
-)
+
+// checken of het email adres begint met characters a t/m z of 0 t/m 9, of het een _ / - of . bevat en een @
+// na de @ kijken of het met gmail, hotmail ect eindigt
+const emailAddressValidator = /^([a-zA-Z0-9_\-\.]+)@(gmail|hotmail|yahoo|live|outlook|avans)\.(com|nl|org|aus|be|de)$/
 //const emailAddressValidator = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/
 
 // constant variables to use for encryption with bcrypt
@@ -20,17 +26,21 @@ module.exports = {
   register: (req, res, next) => {
     logger.trace('register user - POST aangeroepen!')
 
+    // body opvragen
     const user = req.body
     //logger.info(user)
 
+    // gentSalt functie voor het genereren van een salt die radom aangemaakt wordt en aan het ingevoerde wachtwoord wordt geplakt
     bcrypt.genSalt(saltRounds, (err, salt) => {
       if (err) {
+        // als er een error optreedt wordt er een errorObject geresulteert met een message en code 500
         const errorObject = {
           message: err.message.toString(),
           code: 500
         }
         next(errorObject)
       }
+      // wanneer er geen error optreedt roepen we de functie hash aan om het ingevoerde wachtwoord + salt te hashen
       bcrypt.hash(user.password, salt, (err, hash) => {
         if (err) {
           const errorObject = {
@@ -40,6 +50,7 @@ module.exports = {
           next(errorObject)
         }
 
+        // als de hash gelukt is wordt er gebruik gemaakt van reguliere expressies om de validatie van de ingevoerde waarden te controleren
         if (hash) {
           // check if firstname and lastname is valid
           if (nameValidator.test(user.firstName) && nameValidator.test(user.lastName)) {
@@ -49,6 +60,7 @@ module.exports = {
               if (phoneValidator.test(user.phoneNumber)) {
                 // check if email address is valid
                 if (emailAddressValidator.test(user.emailAddress)) {
+                  // de validatie gelukt is wordt er een query opgesteld om de waarden toe te voegen in de database
                   const query = `INSERT INTO [DBUser] (FirstName, LastName, StreetAddress, PostalCode, City, DateOfBirth, PhoneNumber, EmailAddress, Password) VALUES (
                                         '${user.firstName}', 
                                         '${user.lastName}',
@@ -61,6 +73,7 @@ module.exports = {
                                         '${hash}'); 
                                         SELECT SCOPE_IDENTITY() AS UserId`
 
+                  // het uitvoeren van de query
                   database.executeQuery(query, (err, rows) => {
                     if (err) {
                       const errorObject = {
@@ -69,6 +82,7 @@ module.exports = {
                       }
                       next(errorObject)
                     }
+                    // als rows true is geven we de status 200 mee aan res en laten we het record set returnen
                     if (rows) {
                       logger.trace(rows.recordset)
                       res.status(200).json({
@@ -146,8 +160,10 @@ module.exports = {
         }
         next(errorObject)
       }
+      // als rows true is gaan we verder
       if (rows) {
-        // Als we hier zijn:
+        // Als we hier zijn gaan we kijken of het resultaat een lengte heeft van 0
+        // is dit het geval dan geven we de response een status 401
         if (rows.recordset.length === 0) {
           // User niet gevonden, email adress bestaat niet
           logger.warn('no result! Did not found a matching user')
@@ -157,7 +173,7 @@ module.exports = {
           })
         } else {
           /* password decrypten zodat het password vergeleken kan worden */
-
+          // het ingevoerde wachtwoord wordt vergeleken met het opgeslagen wachtwoord uit de database op de recordset die binnen komt
           bcrypt.compare(req.body.password, rows.recordset[0].Password, (err, response) => {
             if (err) {
               const errorObject = {
@@ -171,40 +187,36 @@ module.exports = {
               const id = rows.recordset[0].UserId
               logger.debug(`Password match, user with id: ${id} is logged in!`)
               logger.trace(rows.recordset)
-
+              // als response true is dan geven we de constante payload een waarde, namelijk het UserId. dit is nodig om verdere afhandelingen
+              // te kunnen verrichten anders ben je niet geautoriseerd
               const payload = {
                 UserId: rows.recordset[0].UserId
               }
 
               // user bestaat en geldig wachtwoord --> JSON token (JWT)
-              jwt.sign(
-                {
-                  data: payload
-                },
-                'secretkey',
-                {
-                  expiresIn: '7d'
-                },
-                (err, token) => {
-                  if (err) {
-                    logger.error('Kon geen JWT genereren')
-                    const errorObject = {
-                      message: 'Kon geen JWT genereren.',
-                      code: 500
-                    }
-                    next(errorObject)
+              // nu gaan we de user daadwerkelijk laten inloggen door de payload (userID) mee te geven in het jwt token die 7 dagen geldig is
+              jwt.sign({ data: payload }, 'secretkey', { expiresIn: '7d' }, (err, token) => {
+                if (err) {
+                  logger.error('Kon geen JWT genereren')
+                  const errorObject = {
+                    message: 'Kon geen JWT genereren.',
+                    code: 500
                   }
-                  if (token) {
-                    logger.info('Token generatie is een succes!')
-                    res.status(200).json({
-                      result: {
-                        token: token
-                      }
-                    })
-                  }
+                  next(errorObject)
                 }
-              )
+                if (token) {
+                  logger.info('Token generatie is een succes!')
+                  res.status(200).json({
+                    result: {
+                      token: token
+                    }
+                  })
+                }
+              })
             } else {
+              // bestaat het ingevoerde email adres wel in de database, maar komt het wachtwoord niet overeen;
+              // dan geven we de response een status 401 met een resultaat message dat het wachtwoord niet overeen komt met die is opgeslagen
+              // in de database
               logger.warn('Password DO NOT match!')
               res.status(401).json({
                 result: 'Password DO NOT match!'
@@ -216,6 +228,8 @@ module.exports = {
     })
   },
 
+  // valideren van het token uit de header van postman, is de value verkeerd of is de value leeg, dan geven we een resultaat dat
+  // de user niet geautoriseerd is om deze actie uit te voeren / geen recht heeft
   validateToken: (req, res, next) => {
     logger.trace('validateToken aangeroepen')
     // logger.debug(req.headers)
@@ -251,6 +265,7 @@ module.exports = {
     })
   },
 
+  // alle users als resultaat terug krijgen vanuit de database
   getAll: (req, res, next) => {
     logger.trace('getAll aangeroepen')
 
