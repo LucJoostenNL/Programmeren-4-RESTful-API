@@ -1,3 +1,5 @@
+//test": "node node_modules/mocha/bin/_mocha ./TEST/*application.tests.js --reporter spec --exit"
+
 const assert = require('assert')
 const should = require('chai').should()
 const database = require('../SRC/DATALAYER/mssql.dao')
