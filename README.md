@@ -1,0 +1,2 @@
+# Programmeren-4-RESTful-API [![Build Status](https://travis-ci.com/LucJoostenNL/Programmeren-4-RESTful-API.svg?branch=master)](https://travis-ci.com/LucJoostenNL/Programmeren-4-RESTful-API)
+In this assignment from school I have been asked to create a RESTful API with several routes. I used Node JS in combination with Javascript to create a local server that provides an API, and it persists through that API data in a local database.
